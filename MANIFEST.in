@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include amrut_energy *.css
+recursive-include amrut_energy *.csv
+recursive-include amrut_energy *.html
+recursive-include amrut_energy *.ico
+recursive-include amrut_energy *.js
+recursive-include amrut_energy *.json
+recursive-include amrut_energy *.md
+recursive-include amrut_energy *.png
+recursive-include amrut_energy *.py
+recursive-include amrut_energy *.svg
+recursive-include amrut_energy *.txt
+recursive-exclude amrut_energy *.pyc
