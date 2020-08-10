@@ -29,7 +29,8 @@ app_license = "MIT"
 doctype_js = {
 "Quotation":"public/js/check_rate.js",
 "Sales Order":"public/js/check_rate.js",
-"Sales Invoice":"public/js/check_rate.js"    
+"Sales Invoice":"public/js/check_rate.js",
+"Delivery Note":"public/js/check_rate.js",
    }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
