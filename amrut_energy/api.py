@@ -10,14 +10,12 @@ def create_product_bundle(doc,qo_items):
     quotation= frappe.get_doc('Quotation', doc.name)
     qo_items=quotation.get("items")
 
-    # check if selected is a product bundle item or qty > 1
+    # check if selected is a product bundle item 
     for item in qo_items:
         print(item)
         for selected_qo in selected_qo_items:
             if item.name==selected_qo:
-                if item.qty>1 or item.qty<1:
-                    frappe.throw(_("Selected Item {0} , quantity is {1}. It should be 1".format(item.item_code,item.qty)))
-                elif frappe.db.exists('Product Bundle', item.item_code) != None:
+                if frappe.db.exists('Product Bundle', item.item_code) != None:
                     print('item.name',item.item_code)
                     frappe.throw(_("Selected Item {0} is a product bundle item.".format(item.item_code)))
    
@@ -49,7 +47,7 @@ def create_product_bundle(doc,qo_items):
     for item in qo_items:
         for selected_qo in selected_qo_items:
             if item.name==selected_qo:
-                child_items.append({"item_code":item.item_code,"qty":1})
+                child_items.append({"item_code":item.item_code,"qty":item.qty})
                 to_remove.append(item)
                 new_product_bundle_price += item.base_net_amount
     [quotation.remove(d) for d in to_remove]
