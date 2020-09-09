@@ -47,13 +47,13 @@ def create_product_bundle(doc,qo_items):
     for item in qo_items:
         for selected_qo in selected_qo_items:
             if item.name==selected_qo:
-                child_items.append({"item_code":item.item_code,"qty":item.qty})
+                child_items.append({"item_code":item.item_code,"qty":item.qty,"description":item.description,"uom":item.stock_uom})
                 to_remove.append(item)
                 new_product_bundle_price += item.base_net_amount
     [quotation.remove(d) for d in to_remove]
 
     # create new product bundle with parent item and selected child items
-    frappe.get_doc({
+    product_bundle=frappe.get_doc({
         'doctype': 'Product Bundle',
         'new_item_code': new_product_bundle_name,
         'items': child_items
