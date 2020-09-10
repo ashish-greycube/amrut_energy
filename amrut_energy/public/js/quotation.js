@@ -47,6 +47,8 @@ frappe.ui.form.on('Quotation Item', {
 		}
 	}
 })
+
+
 function create_product_bundle_process(frm,qo_items) {
     if(qo_items.length===0) {
         frappe.throw(__('Plese select item to proceed.'))
@@ -61,10 +63,7 @@ function create_product_bundle_process(frm,qo_items) {
         freeze: true,
         callback: (r) => {
             console.log('r1',r)
-            cur_frm.reload_doc()
-            frm.doc.items.forEach((row, index) => row.idx = index + 1);
-            cur_frm.save()
-
+            frm.reload_doc()
         },
         error: (r) => {
             console.log('r2',r)
@@ -72,3 +71,4 @@ function create_product_bundle_process(frm,qo_items) {
         }
     })
 }
+
