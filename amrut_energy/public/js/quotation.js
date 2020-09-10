@@ -12,23 +12,18 @@ frappe.ui.form.on('Quotation', {
             });
     },
     refresh: function(frm) {
-        frm.toggle_display(['create_product_bundle_cf'], frm.is_new() === undefined);
+        // frm.toggle_display(['create_product_bundle_cf'], frm.is_new() === undefined);
     },
     validate: function(frm) {
-        frm.set_df_property('create_product_bundle_cf', 'hidden', 0)
+        // frm.set_df_property('create_product_bundle_cf', 'hidden', 0)
     },
 
     create_product_bundle_cf: function(frm) {
-        let qo_items=frm.fields_dict.items.grid.get_selected()
-        let new_unsaved_item= qo_items.some(function checknew(item){if (item.search("New")!=-1) return item})
-        console.log(new_unsaved_item,'new_unsaved_item')
+        let qo_items=frm.fields_dict.items.grid.get_selected_children()
         if (!frm.doc.product_bundle_item_cf) {
             frappe.throw(__('Plese select value for Product Bundle Item to proceed.'))
         } 
-        else if(new_unsaved_item==true) {
-            frm.save().then(()=>frappe.show_alert("Quotation is saved now. Do the item selection and press 'Create Product Bundle' button."));
-        }
-        else if (frm.is_dirty()==1) {
+        else if(frm.is_dirty()==1) {
             frm.save().then(()=>create_product_bundle_process(frm,qo_items));
         }
         else{
@@ -57,7 +52,7 @@ function create_product_bundle_process(frm,qo_items) {
         method: 'amrut_energy.api.create_product_bundle',
         args: {
             doc: frm.doc,
-            'qo_items':qo_items
+            'selected_qo_items':qo_items
         },
         btn: $('.primary-action'),
         freeze: true,

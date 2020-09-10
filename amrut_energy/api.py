@@ -4,16 +4,16 @@ from frappe import _
 from frappe.utils import cstr
 
 @frappe.whitelist()
-def create_product_bundle(doc,qo_items):
+def create_product_bundle(doc,selected_qo_items):
     doc=frappe._dict(frappe.parse_json(doc))
-    selected_qo_items=frappe.parse_json(qo_items)
+    selected_qo_items=frappe.parse_json(selected_qo_items)
     quotation= frappe.get_doc('Quotation', doc.name)
     qo_items=quotation.get("items")
-
     # check if selected is a product bundle item 
     for item in qo_items:
         for selected_qo in selected_qo_items:
-            if item.name==selected_qo:
+            if((item.name==selected_qo['name'] and selected_qo['name'].startswith('New Quotation Item') != True) or
+                (item.idx==selected_qo['idx'] and selected_qo['name'].startswith('New Quotation Item') == True) ):
                 if frappe.db.exists('Product Bundle', item.item_code) != None:
                     frappe.throw(_("Selected Item {0} is a product bundle item.".format(item.item_code)))
    
@@ -47,7 +47,8 @@ def create_product_bundle(doc,qo_items):
     all_child_descriptions=''
     for item in qo_items:
         for selected_qo in selected_qo_items:
-            if item.name==selected_qo:
+            if((item.name==selected_qo['name'] and selected_qo['name'].startswith('New Quotation Item') != True) or
+                (item.idx==selected_qo['idx'] and selected_qo['name'].startswith('New Quotation Item') == True) ):               
                 child_items.append({"item_code":item.item_code,"qty":item.qty,"description":item.description,"uom":item.stock_uom})
                 to_remove.append(item)
                 new_product_bundle_price += item.base_net_amount
