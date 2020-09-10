@@ -4,7 +4,8 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
-  "product_bundle_item_group"
+  "product_bundle_item_group",
+  "dynamic_product_bundle"
  ],
  "fields": [
   {
@@ -15,10 +16,17 @@
    "label": "Product Bundle Item Group",
    "options": "Item Group",
    "reqd": 1
+  },
+  {
+   "fieldname": "dynamic_product_bundle",
+   "fieldtype": "Link",
+   "label": "Dynamic Product Bundle Group",
+   "options": "Item Group",
+   "reqd": 1
   }
  ],
  "issingle": 1,
- "modified": "2020-09-06 09:09:44.829887",
+ "modified": "2020-09-10 11:19:34.570906",
  "modified_by": "Administrator",
  "module": "Amrut Energy",
  "name": "Amrut Settings",

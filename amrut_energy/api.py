@@ -28,10 +28,12 @@ def create_product_bundle(doc,qo_items):
     
     # create parent item
     product_bundle_item=frappe.get_doc('Item', quotation.product_bundle_item_cf)
+    dynamic_product_bundle_group=frappe.db.get_single_value('Amrut Settings', 'dynamic_product_bundle')
     new_product_bundle_item = frappe.copy_doc(product_bundle_item)
     new_product_bundle_item.update({
         "item_code":new_product_bundle_name,
         "item_name":new_product_bundle_name,
+        "item_group":dynamic_product_bundle_group,
         "is_sales_item":1,
         "is_stock_item":0,
         "auto_created":1

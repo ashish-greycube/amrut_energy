@@ -17,37 +17,17 @@ frappe.ui.form.on('Quotation', {
     validate: function(frm) {
         frm.set_df_property('create_product_bundle_cf', 'hidden', 0)
     },
-    create_product_bundle_process: function(frm) {
-        if(frm.fields_dict.items.grid.get_selected().length===0) {
-            frappe.throw(__('Plese select item to proceed.'))
-        }
-        frappe.call({
-            method: 'amrut_energy.api.create_product_bundle',
-            args: {
-                doc: frm.doc,
-                qo_items:frm.fields_dict.items.grid.get_selected()
-            },
-            btn: $('.primary-action'),
-            freeze: true,
-            callback: (r) => {
-                console.log('r1',r)
-                cur_frm.reload_doc()
-            },
-            error: (r) => {
-                console.log('r2',r)
-                frappe.show_alert("Something went wrong please try again");
-            }
-        })
-    },
+
     create_product_bundle_cf: function(frm) {
+        let qo_items=frm.fields_dict.items.grid.get_selected()
         if (!frm.doc.product_bundle_item_cf) {
             frappe.throw(__('Plese select value for Product Bundle Item to proceed.'))
         }        
         else if (frm.is_dirty()==1) {
-            frm.save().then(()=> frappe.show_alert("Quotation is saved now. Do the item selection and press 'Create Product Bundle' button."));
+            frm.save().then(()=>create_product_bundle_process(frm,qo_items));
         }
         else{
-            frm.trigger('create_product_bundle_process');  
+            create_product_bundle_process(frm,qo_items)
         }
 
     }
@@ -62,3 +42,25 @@ frappe.ui.form.on('Quotation Item', {
 		}
 	}
 })
+function create_product_bundle_process(frm,qo_items) {
+    if(qo_items.length===0) {
+        frappe.throw(__('Plese select item to proceed.'))
+    }
+    frappe.call({
+        method: 'amrut_energy.api.create_product_bundle',
+        args: {
+            doc: frm.doc,
+            'qo_items':qo_items
+        },
+        btn: $('.primary-action'),
+        freeze: true,
+        callback: (r) => {
+            console.log('r1',r)
+            cur_frm.reload_doc()
+        },
+        error: (r) => {
+            console.log('r2',r)
+            frappe.show_alert("Something went wrong please try again");
+        }
+    })
+}
