@@ -68,12 +68,11 @@ def create_product_bundle(doc,qo_items):
     })
     # create item price if it doesn't exist
     if len(Item_prices)==0:
-        frappe.get_doc({
-            'doctype': 'Item Price',
-            'item_code': new_product_bundle_name,
-            'price_list': quotation.selling_price_list,
-            'price_list_rate':new_product_bundle_price
-        }).insert(ignore_permissions = True)
+        Item_price = frappe.new_doc('Item Price')
+        Item_price.item_code = new_product_bundle_name
+        Item_price.price_list=quotation.selling_price_list
+        Item_price.price_list_rate=new_product_bundle_price
+        Item_price.insert(ignore_permissions = True)        
 
     # update rate in parent item
     description=new_product_bundle_item.description+all_child_descriptions

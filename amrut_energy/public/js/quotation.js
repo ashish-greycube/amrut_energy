@@ -63,6 +63,7 @@ function create_product_bundle_process(frm,qo_items) {
             console.log('r1',r)
             cur_frm.reload_doc()
             frm.doc.items.forEach((row, index) => row.idx = index + 1);
+            cur_frm.save()
 
         },
         error: (r) => {
