@@ -88,6 +88,7 @@ def create_product_bundle(doc,qo_items):
     row.item_code = new_product_bundle_name
     row.qty=1
     row.rate=new_product_bundle_price
+    row.price_list_rate=new_product_bundle_price
 
     quotation.run_method("set_missing_values")
     quotation.run_method("calculate_taxes_and_totals")
