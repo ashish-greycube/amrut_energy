@@ -12,11 +12,9 @@ def create_product_bundle(doc,qo_items):
 
     # check if selected is a product bundle item 
     for item in qo_items:
-        print(item)
         for selected_qo in selected_qo_items:
             if item.name==selected_qo:
                 if frappe.db.exists('Product Bundle', item.item_code) != None:
-                    print('item.name',item.item_code)
                     frappe.throw(_("Selected Item {0} is a product bundle item.".format(item.item_code)))
    
     # generate new_product_bundle_name
@@ -44,12 +42,14 @@ def create_product_bundle(doc,qo_items):
     child_items=[]
     to_remove = []
     new_product_bundle_price=0
+    all_child_descriptions=''
     for item in qo_items:
         for selected_qo in selected_qo_items:
             if item.name==selected_qo:
                 child_items.append({"item_code":item.item_code,"qty":item.qty,"description":item.description,"uom":item.stock_uom})
                 to_remove.append(item)
                 new_product_bundle_price += item.base_net_amount
+                all_child_descriptions+="<div>"+item.description+"</div>"
     [quotation.remove(d) for d in to_remove]
 
     # create new product bundle with parent item and selected child items
@@ -74,8 +74,10 @@ def create_product_bundle(doc,qo_items):
         }).insert(ignore_permissions = True)
 
     # update rate in parent item
+    description=new_product_bundle_item.description+all_child_descriptions
     new_product_bundle_item.update({
-        "standard_rate":new_product_bundle_price
+        "standard_rate":new_product_bundle_price,
+        "description":description
     })
     new_product_bundle_item.save()
 
