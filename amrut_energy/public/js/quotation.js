@@ -20,9 +20,14 @@ frappe.ui.form.on('Quotation', {
 
     create_product_bundle_cf: function(frm) {
         let qo_items=frm.fields_dict.items.grid.get_selected()
+        let new_unsaved_item= qo_items.some(function checknew(item){if (item.search("New")!=-1) return item})
+        console.log(new_unsaved_item,'new_unsaved_item')
         if (!frm.doc.product_bundle_item_cf) {
             frappe.throw(__('Plese select value for Product Bundle Item to proceed.'))
-        }        
+        } 
+        else if(new_unsaved_item==true) {
+            frm.save().then(()=>frappe.show_alert("Quotation is saved now. Do the item selection and press 'Create Product Bundle' button."));
+        }
         else if (frm.is_dirty()==1) {
             frm.save().then(()=>create_product_bundle_process(frm,qo_items));
         }
@@ -57,6 +62,8 @@ function create_product_bundle_process(frm,qo_items) {
         callback: (r) => {
             console.log('r1',r)
             cur_frm.reload_doc()
+            frm.doc.items.forEach((row, index) => row.idx = index + 1);
+
         },
         error: (r) => {
             console.log('r2',r)
