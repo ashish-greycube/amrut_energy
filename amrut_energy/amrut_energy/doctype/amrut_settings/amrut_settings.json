@@ -26,7 +26,7 @@
   }
  ],
  "issingle": 1,
- "modified": "2020-09-10 11:19:34.570906",
+ "modified": "2020-09-15 18:48:32.747899",
  "modified_by": "Administrator",
  "module": "Amrut Energy",
  "name": "Amrut Settings",
@@ -39,6 +39,33 @@
    "print": 1,
    "read": 1,
    "role": "System Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Sales User",
+   "share": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Sales Manager",
+   "share": 1,
+   "write": 1
+  },
+  {
+   "create": 1,
+   "delete": 1,
+   "email": 1,
+   "print": 1,
+   "read": 1,
+   "role": "Sales Master Manager",
    "share": 1,
    "write": 1
   }
