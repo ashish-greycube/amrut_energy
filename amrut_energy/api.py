@@ -52,7 +52,7 @@ def create_product_bundle(doc,selected_qo_items):
                 child_items.append({"item_code":item.item_code,"qty":item.qty,"description":item.description,"uom":item.stock_uom})
                 to_remove.append(item)
                 new_product_bundle_price += item.base_net_amount
-                all_child_descriptions+="<div>"+item.description+"</div>"
+                all_child_descriptions+="<div>"+item.description+'--'+cstr(item.qty)+'--'+item.stock_uom+"</div>"
     [quotation.remove(d) for d in to_remove]
 
     # create new product bundle with parent item and selected child items
