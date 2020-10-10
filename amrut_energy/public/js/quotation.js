@@ -33,15 +33,15 @@ frappe.ui.form.on('Quotation', {
     }
 })
 
-frappe.ui.form.on('Quotation Item', {
-	rate: function (frm,cdt,cdn) {
-		// check entered price is not less than sales price
-        let row = locals[cdt][cdn];
-		if (row.price_list_rate && row.rate < row.price_list_rate ) {
-			frappe.throw(__('Rate entered by you is <b> {0} </b>. <br> It cannot be less than sales rate of <b> {1} </b>.',[row.rate, row.price_list_rate]))
-		}
-	}
-})
+// frappe.ui.form.on('Quotation Item', {
+// 	rate: function (frm,cdt,cdn) {
+// 		// check entered price is not less than sales price
+//         let row = locals[cdt][cdn];
+// 		if (row.price_list_rate && row.rate < row.price_list_rate ) {
+// 			frappe.throw(__('Rate entered by you is <b> {0} </b>. <br> It cannot be less than sales rate of <b> {1} </b>.',[row.rate, row.price_list_rate]))
+// 		}
+// 	}
+// })
 
 
 function create_product_bundle_process(frm,qo_items) {
