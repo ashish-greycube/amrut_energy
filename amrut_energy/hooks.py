@@ -26,10 +26,7 @@ app_license = "MIT"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-doctype_js = {
-"Item":"public/js/item.js",   
-"Quotation":"public/js/quotation.js"
-   }
+doctype_js = {"Item": "public/js/item.js", "Quotation": "public/js/quotation.js"}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -42,7 +39,7 @@ doctype_js = {
 
 # website user home page (by Role)
 # role_home_page = {
-#	"Role": "home_page"
+# 	"Role": "home_page"
 # }
 
 # Website user home page (by function)
@@ -82,13 +79,11 @@ doctype_js = {
 # ---------------
 # Hook on document methods and events
 
-# doc_events = {
-# 	"*": {
-# 		"on_update": "method",
-# 		"on_cancel": "method",
-# 		"on_trash": "method"
-#	}
-# }
+doc_events = {
+    "Contact": {
+        "validate": "amrut_energy.doc_events.on_validate_contact",
+    }
+}
 
 # Scheduled Tasks
 # ---------------
@@ -129,4 +124,3 @@ doctype_js = {
 # override_doctype_dashboards = {
 # 	"Task": "amrut_energy.task.get_dashboard_data"
 # }
-
