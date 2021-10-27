@@ -82,7 +82,14 @@ doctype_js = {"Item": "public/js/item.js", "Quotation": "public/js/quotation.js"
 doc_events = {
     "Contact": {
         "validate": "amrut_energy.doc_events.on_validate_contact",
-    }
+    },
+    "Payment Entry": {
+        "validate": "amrut_energy.doc_events.on_validate_payment_entry",
+    },
+    "Issue": {
+        "validate": "amrut_energy.doc_events.on_validate_issue",
+    },
+
 }
 
 # Scheduled Tasks
