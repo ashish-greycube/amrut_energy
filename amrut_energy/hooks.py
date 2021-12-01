@@ -26,7 +26,11 @@ app_license = "MIT"
 # page_js = {"page" : "public/js/file.js"}
 
 # include js in doctype views
-doctype_js = {"Item": "public/js/item.js", "Quotation": "public/js/quotation.js"}
+doctype_js = {
+    "Item": "public/js/item.js",
+    "Quotation": "public/js/quotation.js",
+    "Issue": "public/js/issue.js",
+}
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
 # doctype_calendar_js = {"doctype" : "public/js/doctype_calendar.js"}
@@ -89,7 +93,6 @@ doc_events = {
     "Issue": {
         "validate": "amrut_energy.doc_events.on_validate_issue",
     },
-
 }
 
 # Scheduled Tasks
