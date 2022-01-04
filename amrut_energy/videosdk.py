@@ -18,6 +18,7 @@ import datetime
 
 @frappe.whitelist(allow_guest=True)
 def create_meeting(**args):
+    frappe.throw("This feature is not supported.")
 
     settings = frappe.get_single("Amrut Settings")
 

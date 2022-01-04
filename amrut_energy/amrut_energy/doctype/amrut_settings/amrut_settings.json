@@ -31,23 +31,29 @@
   {
    "fieldname": "videosdk_api_key",
    "fieldtype": "Data",
-   "label": "VideoSDK API Key"
+   "hidden": 1,
+   "label": "VideoSDK API Key",
+   "read_only": 1
   },
   {
    "fieldname": "videosdk_secret_key",
    "fieldtype": "Data",
-   "label": "VideoSDK Secret Key"
+   "hidden": 1,
+   "label": "VideoSDK Secret Key",
+   "read_only": 1
   },
   {
    "fieldname": "videosdk_api_url",
    "fieldtype": "Data",
-   "label": "VideoSDK API Url"
+   "hidden": 1,
+   "label": "VideoSDK API Url",
+   "read_only": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2021-12-01 19:31:22.597887",
+ "modified": "2022-01-04 10:55:54.564810",
  "modified_by": "Administrator",
  "module": "Amrut Energy",
  "name": "Amrut Settings",

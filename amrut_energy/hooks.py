@@ -60,6 +60,7 @@ doctype_js = {
 
 # before_install = "amrut_energy.install.before_install"
 # after_install = "amrut_energy.install.after_install"
+after_migrate = "amrut_energy.install.after_migrate"
 
 # Desk Notifications
 # ------------------
