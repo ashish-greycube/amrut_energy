@@ -83,3 +83,13 @@ def make_sales_order(source_name, target_doc=None, ignore_permissions=True):
     )
 
     return doclist
+
+
+def on_submit_sales_order(doc, method):
+    if doc.issue_cf:
+        issue = frappe.get_doc("Issue", doc.issue_cf)
+        issue.status = "Closed"
+        issue.flags.ignore_permissions = True
+        issue.flags.ignore_mandatory = True
+        issue.save()
+        frappe.db.commit()

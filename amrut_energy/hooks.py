@@ -94,6 +94,9 @@ doc_events = {
     "Issue": {
         "validate": "amrut_energy.doc_events.on_validate_issue",
     },
+    "Sales Order": {
+        "on_submit": "amrut_energy.doc_events.on_submit_sales_order",
+    },
 }
 
 # Scheduled Tasks

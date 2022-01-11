@@ -18,6 +18,7 @@ def after_migrate():
                 fieldtype="Link",
                 translatable=0,
                 options="Issue",
+                insert_after="order_type",
             )
         ],
         "Delivery Note Item": [
@@ -27,6 +28,7 @@ def after_migrate():
                 fieldtype="Link",
                 translatable=0,
                 options="Issue",
+                insert_after="dn_detail",
             )
         ],
     }
