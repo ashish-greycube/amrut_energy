@@ -5,6 +5,8 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "default_sales_person_for_chatbot",
+  "quotation_tc_chatbot",
   "product_bundle_item_group",
   "dynamic_product_bundle",
   "videosdk_api_key",
@@ -48,12 +50,28 @@
    "hidden": 1,
    "label": "VideoSDK API Url",
    "read_only": 1
+  },
+  {
+   "description": "used in Amzy Engati chatbot for creation of Quotation",
+   "fieldname": "default_sales_person_for_chatbot",
+   "fieldtype": "Link",
+   "label": "Default Sales Person for Chatbot",
+   "options": "Sales Person",
+   "reqd": 1
+  },
+  {
+   "description": "used in Amzy Engati chatbot for creation of Quotation",
+   "fieldname": "quotation_tc_chatbot",
+   "fieldtype": "Link",
+   "label": "Quotation Terms & Conditions for Chatbot",
+   "options": "Terms and Conditions",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-01-04 10:55:54.564810",
+ "modified": "2022-02-21 17:15:57.477250",
  "modified_by": "Administrator",
  "module": "Amrut Energy",
  "name": "Amrut Settings",
