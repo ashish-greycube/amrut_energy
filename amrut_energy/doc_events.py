@@ -97,13 +97,13 @@ def on_submit_sales_order(doc, method):
 
 def on_validate_quotation_for_engati_chat_bot(self,method):
     engati_user=frappe.db.get_single_value('Amrut Settings', 'default_api_user_for_engati')
-    if engati_user==frappe.session.user and self.lead_mobile_no:
+    if frappe.local.form_dict.get('lead_mobile_no') and engati_user==frappe.session.user :
         self.quotation_to= "Lead"
-    party_name=frappe.db.get_list('Lead',filters={'mobile_no': self.lead_mobile_no},pluck='name')
-    if len(party_name)>0:
-        self.party_name=party_name[0]
-        self.sales_person=frappe.db.get_single_value('Amrut Settings', 'default_sales_person_for_chatbot')
-        self.tc_name=frappe.db.get_single_value('Amrut Settings', 'quotation_tc_chatbot')
-        self.terms=frappe.db.get_value('Terms and Conditions', self.tc_name, 'terms')
-    else:
-        frappe.throw(_('Lead doesnot exist for mobile no {0}'.format(self.lead_mobile_no)))
+        party_name=frappe.db.get_list('Lead',filters={'mobile_no': self.lead_mobile_no},pluck='name')
+        if len(party_name)>0:
+            self.party_name=party_name[0]
+            self.sales_person=frappe.db.get_single_value('Amrut Settings', 'default_sales_person_for_chatbot')
+            self.tc_name=frappe.db.get_single_value('Amrut Settings', 'quotation_tc_chatbot')
+            self.terms=frappe.db.get_value('Terms and Conditions', self.tc_name, 'terms')
+        else:
+            frappe.throw(_('Lead doesnot exist for mobile no {0}'.format(self.lead_mobile_no)))
