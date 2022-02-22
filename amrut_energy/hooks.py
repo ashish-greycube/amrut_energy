@@ -97,6 +97,9 @@ doc_events = {
     "Sales Order": {
         "on_submit": "amrut_energy.doc_events.on_submit_sales_order",
     },
+    "Quotation": {
+        "validate": "amrut_energy.doc_events.on_validate_quotation_for_engati_chat_bot",
+    }
 }
 
 # Scheduled Tasks

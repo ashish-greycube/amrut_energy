@@ -1,7 +1,39 @@
 ## Amrut Energy
 
+[1]set all engati related values
+
+![](assets/20220222_095546_image.png)
+
+[2] Note the api key and secret for 'Default Api User For Engati'
+
+![](assets/20220222_095706_image.png)
+
+[3] Engati quotation call values
+
+https://erp.amrutenergy.com/api/resource/Quotation
+
+Authorization token 2d302358413bf0e:2a6786a1e444fe9
+
+![](assets/20220222_100330_image.png)
+
+[4] quotation value
+
+![](assets/20220222_100509_image.png)
+
+```{
+"items": [
+{
+"item_code": "DFB",
+"qty": "1"
+}
+],
+"lead_mobile_no": "9800383934"
+}
+```
+
 Customization for amrut energy company
 
 #### License
 
 MIT
+

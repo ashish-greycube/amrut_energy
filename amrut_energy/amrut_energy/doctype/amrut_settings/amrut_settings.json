@@ -5,8 +5,11 @@
  "editable_grid": 1,
  "engine": "InnoDB",
  "field_order": [
+  "engati_settings",
+  "default_api_user_for_engati",
   "default_sales_person_for_chatbot",
   "quotation_tc_chatbot",
+  "column_break_4",
   "product_bundle_item_group",
   "dynamic_product_bundle",
   "videosdk_api_key",
@@ -66,12 +69,29 @@
    "label": "Quotation Terms & Conditions for Chatbot",
    "options": "Terms and Conditions",
    "reqd": 1
+  },
+  {
+   "description": "Default user (role:sales user) used to create quotation from Amzy Engati chatbot",
+   "fieldname": "default_api_user_for_engati",
+   "fieldtype": "Link",
+   "label": "Default Api User For Engati",
+   "options": "User",
+   "reqd": 1
+  },
+  {
+   "fieldname": "column_break_4",
+   "fieldtype": "Column Break"
+  },
+  {
+   "fieldname": "engati_settings",
+   "fieldtype": "Heading",
+   "label": "Engati Settings"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-02-21 17:15:57.477250",
+ "modified": "2022-02-22 09:54:32.458122",
  "modified_by": "Administrator",
  "module": "Amrut Energy",
  "name": "Amrut Settings",
