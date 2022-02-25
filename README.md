@@ -2,7 +2,9 @@
 
 [1]set all engati related values
 
-![](assets/20220222_095546_image.png)
+
+
+![](assets/20220225_122829_image.png)
 
 [2] Note the api key and secret for 'Default Api User For Engati'
 
@@ -20,14 +22,27 @@ Authorization token 2d302358413bf0e:2a6786a1e444fe9
 
 ![](assets/20220222_100509_image.png)
 
-```{
-"items": [
+```
 {
-"item_code": "DFB",
-"qty": "1"
-}
-],
-"lead_mobile_no": "9800383934"
+
+    "items": [
+
+        {
+
+            "item_code": "DFB",
+
+            "qty": "2"
+
+        }
+
+    ],
+
+    "docstatus": 1,
+
+    "selling_price_list": "Desert Power Solution",
+
+    "lead_mobile_no": "9800383935"
+
 }
 ```
 

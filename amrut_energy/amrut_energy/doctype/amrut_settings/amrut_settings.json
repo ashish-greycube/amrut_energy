@@ -7,7 +7,6 @@
  "field_order": [
   "engati_settings",
   "default_api_user_for_engati",
-  "default_sales_person_for_chatbot",
   "quotation_tc_chatbot",
   "column_break_4",
   "product_bundle_item_group",
@@ -56,14 +55,6 @@
   },
   {
    "description": "used in Amzy Engati chatbot for creation of Quotation",
-   "fieldname": "default_sales_person_for_chatbot",
-   "fieldtype": "Link",
-   "label": "Default Sales Person for Chatbot",
-   "options": "Sales Person",
-   "reqd": 1
-  },
-  {
-   "description": "used in Amzy Engati chatbot for creation of Quotation",
    "fieldname": "quotation_tc_chatbot",
    "fieldtype": "Link",
    "label": "Quotation Terms & Conditions for Chatbot",
@@ -91,7 +82,7 @@
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-02-22 09:54:32.458122",
+ "modified": "2022-02-25 12:24:04.221770",
  "modified_by": "Administrator",
  "module": "Amrut Energy",
  "name": "Amrut Settings",
