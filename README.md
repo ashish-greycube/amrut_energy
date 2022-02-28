@@ -2,7 +2,7 @@
 
 [1]set all engati related values
 
-![](assets/20220225_122829_image.png)
+![](assets/2022-02-28_11-09.png)
 
 [2] Note the api key and secret for 'Default Api User For Engati'
 
