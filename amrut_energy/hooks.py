@@ -99,6 +99,7 @@ doc_events = {
     },
     "Quotation": {
         "validate": "amrut_energy.doc_events.on_validate_quotation_for_engati_chat_bot",
+        "after_insert":"amrut_energy.doc_events.on_insert_quotation_for_engati_chat_generate_PDF"
     }
 }
 

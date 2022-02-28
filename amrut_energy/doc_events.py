@@ -7,9 +7,9 @@ from __future__ import unicode_literals
 import frappe
 from frappe import _
 from frappe.model.mapper import get_mapped_doc
-from frappe.utils import flt, getdate, nowdate, add_days, today
+from frappe.utils import flt, getdate, nowdate, add_days, today,get_url,cstr
 from erpnext import get_company_currency, get_default_company
-
+from frappe.utils.file_manager import MaxFileSizeReachedError
 
 def on_validate_contact(doc, method):
     if not doc.phone:
@@ -95,6 +95,19 @@ def on_submit_sales_order(doc, method):
         frappe.db.commit()
 
 
+def on_insert_quotation_for_engati_chat_generate_PDF(self,method):
+    engati_user=frappe.db.get_single_value('Amrut Settings', 'default_api_user_for_engati')
+    print_format=frappe.db.get_single_value('Amrut Settings', 'pdf_print_format_for_url')
+    if frappe.local.form_dict.get('lead_mobile_no') and engati_user==frappe.session.user and print_format:
+        print_letterhead=True
+        if print_format:
+            pdf_url=attach_print(
+                frappe.get_doc("Quotation", self.name),
+                print_format=print_format,
+                print_letterhead=print_letterhead,
+                file_name=(self.doc_pdf_url_cf.rsplit("/",1)[1]).split('.pdf')[0]
+            )  
+
 def on_validate_quotation_for_engati_chat_bot(self,method):
     engati_user=frappe.db.get_single_value('Amrut Settings', 'default_api_user_for_engati')
     if frappe.local.form_dict.get('lead_mobile_no') and engati_user==frappe.session.user :
@@ -104,5 +117,61 @@ def on_validate_quotation_for_engati_chat_bot(self,method):
             self.party_name=party_name[0]
             self.tc_name=frappe.db.get_single_value('Amrut Settings', 'quotation_tc_chatbot')
             self.terms=frappe.db.get_value('Terms and Conditions', self.tc_name, 'terms')
+            doc_pdf_url_cf="{0}_{1}_{2}.pdf".format('Quotation', self.name, frappe.generate_hash(length=8))
+            self.doc_pdf_url_cf=cstr(get_url("/files/" + doc_pdf_url_cf))
         else:
             frappe.throw(_('Lead doesnot exist for mobile no {0}'.format(self.lead_mobile_no)))
+
+
+def attach_print(
+    doc,
+    file_name=None,
+    print_format=None,
+    style=None,
+    html=None,
+    lang=None,
+    print_letterhead=True,
+    password=None,
+):
+    """Save print as an attachment in given document."""
+    if not file_name:
+        file_name = "{0}_{1}_{2}".format(
+            doc.doctype, doc.name, frappe.generate_hash(length=8)
+        )
+    quotation = frappe.get_doc(doc.doctype, doc.name)
+    out = frappe.attach_print(
+        doc.doctype,
+        doc.name,
+        file_name,
+        print_format,
+        style,
+        html,
+        quotation,
+        lang,
+        print_letterhead,
+        password,
+    )
+
+    try:
+        _file = frappe.get_doc(
+            {
+                "doctype": "File",
+                "file_name": out["fname"],
+                "attached_to_doctype": doc.doctype,
+                "attached_to_name": doc.name,
+                "is_private": 0,
+                "content": out["fcontent"],
+            }
+        )
+        _file.save(ignore_permissions=True)
+        frappe.db.commit()
+        return file_name
+
+    except MaxFileSizeReachedError:
+        # WARNING: bypass max file size exception
+        pass
+    except frappe.FileAlreadyAttachedException:
+        pass
+    except frappe.DuplicateEntryError:
+        # same file attached twice??
+        pass            

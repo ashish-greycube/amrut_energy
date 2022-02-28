@@ -2,8 +2,6 @@
 
 [1]set all engati related values
 
-
-
 ![](assets/20220225_122829_image.png)
 
 [2] Note the api key and secret for 'Default Api User For Engati'
@@ -14,7 +12,7 @@
 
 https://erp.amrutenergy.com/api/resource/Quotation
 
-Authorization token 2d302358413bf0e:2a6786a1e444fe9
+Authorization token XX:YY
 
 ![](assets/20220222_100330_image.png)
 

@@ -84,13 +84,14 @@
    "fieldname": "pdf_print_format_for_url",
    "fieldtype": "Link",
    "label": "Pdf Print Format For Engati Quotation",
-   "options": "Print Format"
+   "options": "Print Format",
+   "reqd": 1
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-02-28 10:44:39.089829",
+ "modified": "2022-02-28 10:49:50.808034",
  "modified_by": "Administrator",
  "module": "Amrut Energy",
  "name": "Amrut Settings",
