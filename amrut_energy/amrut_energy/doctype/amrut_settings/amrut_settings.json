@@ -8,6 +8,7 @@
   "engati_settings",
   "default_api_user_for_engati",
   "quotation_tc_chatbot",
+  "pdf_print_format_for_url",
   "column_break_4",
   "product_bundle_item_group",
   "dynamic_product_bundle",
@@ -77,12 +78,19 @@
    "fieldname": "engati_settings",
    "fieldtype": "Heading",
    "label": "Engati Settings"
+  },
+  {
+   "description": "used in Amzy Engati chatbot for providing quotation PDF",
+   "fieldname": "pdf_print_format_for_url",
+   "fieldtype": "Link",
+   "label": "Pdf Print Format For Engati Quotation",
+   "options": "Print Format"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-02-25 12:24:04.221770",
+ "modified": "2022-02-28 10:44:39.089829",
  "modified_by": "Administrator",
  "module": "Amrut Energy",
  "name": "Amrut Settings",
