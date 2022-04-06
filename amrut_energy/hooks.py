@@ -85,6 +85,9 @@ after_migrate = "amrut_energy.install.after_migrate"
 # Hook on document methods and events
 
 doc_events = {
+    "Customer": {
+        "validate": "amrut_energy.doc_events.on_validate_customer",
+    },    
     "Contact": {
         "validate": "amrut_energy.doc_events.on_validate_contact",
     },

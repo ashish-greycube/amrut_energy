@@ -10,6 +10,9 @@ from frappe.model.mapper import get_mapped_doc
 from frappe.utils import flt, getdate, nowdate, add_days, today,get_url,cstr
 from erpnext import get_company_currency, get_default_company
 from frappe.utils.file_manager import MaxFileSizeReachedError
+import re
+from erpnext.regional.india.utils import validate_gstin_check_digit
+from frappe.utils.csvutils import getlink
 
 def on_validate_contact(doc, method):
     if not doc.phone:
@@ -175,3 +178,36 @@ def attach_print(
     except frappe.DuplicateEntryError:
         # same file attached twice??
         pass            
+
+def on_validate_customer(doc,method):
+    # validate unique
+
+
+    GSTIN_FORMAT = re.compile("^[0-9]{2}[A-Z]{4}[0-9A-Z]{1}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}[1-9A-Z]{1}[0-9A-Z]{1}$")
+
+    if not hasattr(doc, 'tax_id') or not doc.tax_id:
+        return
+
+    doc.tax_id = doc.tax_id.upper().strip()
+    if not doc.tax_id or doc.tax_id == 'NA':
+        return
+
+    existing_tax_id=frappe.db.get_list('Customer', filters={
+            'name': ['!=', doc.name],
+            'tax_id': ['=', doc.tax_id]},
+            fields=['name'])
+    print('existing_tax_id',existing_tax_id)
+    if len(existing_tax_id) > 0:
+        frappe.throw(_("GSTIN is already used in {0}.".format(getlink("Customer", existing_tax_id[0].name))), title=_("Duplicate GSTIN"))
+
+    if len(doc.tax_id) != 15:
+        frappe.throw(_("A GSTIN must have 15 characters."), title=_("Invalid GSTIN"))
+
+    if len(doc.tax_id) != 15:
+        frappe.throw(_("A GSTIN must have 15 characters."), title=_("Invalid GSTIN"))
+
+
+    if not GSTIN_FORMAT.match(doc.tax_id):
+        frappe.throw(_("The input you've entered doesn't match the format of GSTIN."), title=_("Invalid GSTIN"))
+
+    validate_gstin_check_digit(doc.tax_id)  
