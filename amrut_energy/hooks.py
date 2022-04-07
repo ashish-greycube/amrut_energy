@@ -88,6 +88,9 @@ doc_events = {
     "Customer": {
         "validate": "amrut_energy.doc_events.on_validate_customer",
     },    
+    "Supplier": {
+        "validate": "amrut_energy.doc_events.on_validate_supplier",
+    },     
     "Contact": {
         "validate": "amrut_energy.doc_events.on_validate_contact",
     },

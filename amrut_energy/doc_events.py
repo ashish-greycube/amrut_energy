@@ -179,7 +179,13 @@ def attach_print(
         # same file attached twice??
         pass            
 
+def on_validate_supplier(doc,method):
+    validate_gstin_for_tax_id(doc,method)
+
 def on_validate_customer(doc,method):
+    validate_gstin_for_tax_id(doc,method)
+
+def validate_gstin_for_tax_id(doc,method):
     # validate unique
 
 
@@ -192,22 +198,22 @@ def on_validate_customer(doc,method):
     if not doc.tax_id or doc.tax_id == 'NA':
         return
 
-    existing_tax_id=frappe.db.get_list('Customer', filters={
+    existing_tax_id=frappe.db.get_list(doc.doctype, filters={
             'name': ['!=', doc.name],
             'tax_id': ['=', doc.tax_id]},
             fields=['name'])
     print('existing_tax_id',existing_tax_id)
     if len(existing_tax_id) > 0:
-        frappe.throw(_("GSTIN is already used in {0}.".format(getlink("Customer", existing_tax_id[0].name))), title=_("Duplicate GSTIN"))
+        frappe.throw(_("GSTIN is already used in {0}.".format(getlink(doc.doctype, existing_tax_id[0].name))), title=_("Duplicate Tax ID(GSTIN)"))
 
     if len(doc.tax_id) != 15:
-        frappe.throw(_("A GSTIN must have 15 characters."), title=_("Invalid GSTIN"))
+        frappe.throw(_("A GSTIN must have 15 characters."), title=_("Invalid Tax ID(GSTIN)"))
 
     if len(doc.tax_id) != 15:
-        frappe.throw(_("A GSTIN must have 15 characters."), title=_("Invalid GSTIN"))
+        frappe.throw(_("A GSTIN must have 15 characters."), title=_("Invalid Tax ID(GSTIN)"))
 
 
     if not GSTIN_FORMAT.match(doc.tax_id):
-        frappe.throw(_("The input you've entered doesn't match the format of GSTIN."), title=_("Invalid GSTIN"))
+        frappe.throw(_("The input you've entered doesn't match the format of GSTIN."), title=_("Invalid Tax ID(GSTIN)"))
 
-    validate_gstin_check_digit(doc.tax_id)  
+    validate_gstin_check_digit(doc.tax_id)     
