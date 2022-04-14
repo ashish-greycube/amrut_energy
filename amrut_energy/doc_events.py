@@ -23,14 +23,21 @@ def on_validate_contact(doc, method):
 def on_validate_payment_entry(doc, method):
     contact_phone = doc.contact_phone
     if not contact_phone:
+        print('contact_phone',contact_phone)
+        print('doc.references',doc.references,doc.references[-1],'doc.references[-1]',doc.references[0])
         if doc.references:
             ref = doc.references[-1]
+            print('3')
             reference_doctype = ref.get("reference_doctype")
             contact_phone = frappe.db.get_value(
                 reference_doctype, ref.name, "contact_mobile"
             )
             if not contact_phone and doc.party_type == "Customer":
                 contact_phone = frappe.db.get_value("Customer", doc.party, "mobile_no")
+        else:
+            print(4)
+            if not contact_phone and doc.party_type == "Customer":
+                contact_phone = frappe.db.get_value("Customer", doc.party, "mobile_no")            
         if contact_phone:
             doc.contact_phone = contact_phone
 
