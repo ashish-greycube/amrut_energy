@@ -201,7 +201,7 @@ def validate_gstin_for_tax_id(doc,method):
     if not doc.tax_id or doc.tax_id == 'NA':
         return
 
-    existing_tax_id=frappe.db.get_list(doc.doctype, filters={
+    existing_tax_id=frappe.db.get_all(doc.doctype, filters={
             'name': ['!=', doc.name],
             'tax_id': ['=', doc.tax_id]},
             fields=['name'])
