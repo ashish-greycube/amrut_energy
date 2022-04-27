@@ -30,14 +30,14 @@ def on_validate_payment_entry(doc, method):
             contact_phone = frappe.db.get_value(
                 reference_doctype, ref.name, "contact_mobile"
             )
-            if not contact_phone and doc.party_type in ["Customer", "Supplier"]:
+            if not contact_phone and doc.get("party_type") in ["Customer", "Supplier"]:
                 contact_phone = frappe.db.get_value(
-                    doc.paty_type, doc.party, "mobile_no"
+                    doc.party_type, doc.party, "mobile_no"
                 )
         else:
-            if not contact_phone and doc.party_type in ["Customer", "Supplier"]:
+            if not contact_phone and doc.get("party_type") in ["Customer", "Supplier"]:
                 contact_phone = frappe.db.get_value(
-                    doc.paty_type, doc.party, "mobile_no"
+                    doc.party_type, doc.party, "mobile_no"
                 )
         if contact_phone:
             doc.contact_phone = contact_phone
