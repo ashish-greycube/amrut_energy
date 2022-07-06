@@ -267,3 +267,37 @@ def validate_gstin_for_tax_id(doc, method):
         )
 
     validate_gstin_check_digit(doc.tax_id)
+
+
+def on_validate_delivery_note(doc, method):
+    if doc.is_new():
+
+        # update serial no from sales order item if present
+        so_detail = [d.so_detail for d in doc.items if d.so_detail]
+        if so_detail:
+            for d in frappe.db.sql(
+                """
+                select 
+                    serial_no , item_code , parent_detail_docname , parent  
+                from `tabPacked Item` tpi 
+                where tpi.parenttype = 'Sales Order' and nullif(serial_no,'') is not null
+                and parent_detail_docname in ({})
+            """.format(
+                    ",".join(["%s"] * len(so_detail))
+                ),
+                tuple(so_detail),
+                as_dict=True,
+            ):
+                for item in doc.packed_items:
+                    so_detail = [
+                        i.so_detail
+                        for i in doc.items
+                        if i.name == item.parent_detail_docname
+                    ]
+                    if (
+                        so_detail
+                        and so_detail[0] == d.parent_detail_docname
+                        and item.item_code == d.item_code
+                    ):
+
+                        item.serial_no = d.serial_no

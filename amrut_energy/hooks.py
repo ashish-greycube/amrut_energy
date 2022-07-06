@@ -87,10 +87,10 @@ after_migrate = "amrut_energy.install.after_migrate"
 doc_events = {
     "Customer": {
         "validate": "amrut_energy.doc_events.on_validate_customer",
-    },    
+    },
     "Supplier": {
         "validate": "amrut_energy.doc_events.on_validate_supplier",
-    },     
+    },
     "Contact": {
         "validate": "amrut_energy.doc_events.on_validate_contact",
     },
@@ -105,8 +105,11 @@ doc_events = {
     },
     "Quotation": {
         "validate": "amrut_energy.doc_events.on_validate_quotation_for_engati_chat_bot",
-        "after_insert":"amrut_energy.doc_events.on_insert_quotation_for_engati_chat_generate_PDF"
-    }
+        "after_insert": "amrut_energy.doc_events.on_insert_quotation_for_engati_chat_generate_PDF",
+    },
+    "Delivery Note": {
+        "validate": "amrut_energy.doc_events.on_validate_delivery_note",
+    },
 }
 
 # Scheduled Tasks
