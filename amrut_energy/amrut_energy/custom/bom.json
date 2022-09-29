@@ -161,7 +161,7 @@
    "name": "BOM-additional_cost_cf",
    "no_copy": 0,
    "non_negative": 0,
-   "options": "Landed Cost Taxes and Charges",
+   "options": "BOM Additional Cost CT",
    "owner": "Administrator",
    "parent": null,
    "parentfield": null,
