@@ -301,3 +301,20 @@ def on_validate_delivery_note(doc, method):
                     ):
 
                         item.serial_no = d.serial_no
+
+
+def on_before_insert_stock_entry(self,method):
+    if self.purpose == 'Manufacture' and self.bom_no:
+        bom=frappe.get_doc('BOM',self.bom_no)
+        bom_qty=bom.quantity
+        se_qty=self.fg_completed_qty
+        for bom_row in bom.get("additional_cost_cf"):
+            se_additional_cost=self.append("additional_costs",{})
+            se_additional_cost.expense_account=bom_row.expense_account
+            se_additional_cost.description=bom_row.description
+            se_additional_cost.exchange_rate=1
+            se_additional_cost.amount=(se_qty / bom_qty) * bom_row.amount
+            se_additional_cost.base_amount=(se_qty / bom_qty) * bom_row.amount
+            frappe.msgprint(_("Additional cost {0} for account {1} is added from BOM").format(se_additional_cost.amount,se_additional_cost.expense_account), alert=True) 
+
+

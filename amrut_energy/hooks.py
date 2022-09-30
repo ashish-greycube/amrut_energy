@@ -29,8 +29,7 @@ app_license = "MIT"
 doctype_js = {
     "Item": "public/js/item.js",
     "Quotation": "public/js/quotation.js",
-    "Issue": "public/js/issue.js",
-    "Stock Entry" : "public/js/stock_entry.js"
+    "Issue": "public/js/issue.js"
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -111,6 +110,9 @@ doc_events = {
     "Delivery Note": {
         "validate": "amrut_energy.doc_events.on_validate_delivery_note",
     },
+    "Stock Entry": {
+        "before_insert": "amrut_energy.doc_events.on_before_insert_stock_entry",
+    },    
 }
 
 # Scheduled Tasks
