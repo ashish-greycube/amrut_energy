@@ -11,7 +11,8 @@ from frappe.utils import flt, getdate, nowdate, add_days, today, get_url, cstr
 from erpnext import get_company_currency, get_default_company
 from frappe.utils.file_manager import MaxFileSizeReachedError
 import re
-from erpnext.regional.india.utils import validate_gstin_check_digit
+# from erpnext.regional.india.utils import validate_gstin_check_digit
+from india_compliance.gst_india.utils import validate_gstin_check_digit
 from frappe.utils.csvutils import getlink
 
 
