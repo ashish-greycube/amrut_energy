@@ -29,7 +29,8 @@ app_license = "MIT"
 doctype_js = {
     "Item": "public/js/item.js",
     "Quotation": "public/js/quotation.js",
-    "Issue": "public/js/issue.js"
+    "Issue": "public/js/issue.js",
+    "Payment Entry":"public/js/payment_entry.js"
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -96,6 +97,7 @@ doc_events = {
     },
     "Payment Entry": {
         "validate": "amrut_energy.doc_events.on_validate_payment_entry",
+        "on_submit": "amrut_energy.doc_events.on_submit_payment_entry_create_inter_company_je"
     },
     "Issue": {
         "validate": "amrut_energy.doc_events.on_validate_issue",

@@ -1,0 +1,56 @@
+{
+ "actions": [],
+ "allow_rename": 1,
+ "creation": "2023-04-24 15:23:59.523987",
+ "doctype": "DocType",
+ "editable_grid": 1,
+ "engine": "InnoDB",
+ "field_order": [
+  "sending_company",
+  "sending_bank_account",
+  "receiving_company",
+  "receiving_bank_account"
+ ],
+ "fields": [
+  {
+   "fieldname": "sending_company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Sending Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "sending_bank_account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Sending Bank Account",
+   "options": "Account"
+  },
+  {
+   "fieldname": "receiving_company",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Receiving Company",
+   "options": "Company"
+  },
+  {
+   "fieldname": "receiving_bank_account",
+   "fieldtype": "Link",
+   "in_list_view": 1,
+   "label": "Receiving Bank Account",
+   "options": "Account"
+  }
+ ],
+ "index_web_pages_for_search": 1,
+ "istable": 1,
+ "links": [],
+ "modified": "2023-04-24 16:28:26.763697",
+ "modified_by": "Administrator",
+ "module": "Amrut Energy",
+ "name": "Inter Company Settings Mapping CT",
+ "owner": "Administrator",
+ "permissions": [],
+ "sort_field": "modified",
+ "sort_order": "DESC",
+ "states": []
+}
