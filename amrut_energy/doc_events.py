@@ -328,11 +328,16 @@ def on_submit_payment_entry_create_inter_company_je(self,method):
         sending_inter_company_journal_entry_reference=None
         receiving_inter_company_journal_entry_reference=None
     
-        receiving_bank_account_list=frappe.db.get_list('Inter Company Settings Mapping CT',filters={
-                                'sending_company': self.company,
-                                'sending_bank_account':self.paid_to,
-                                'receiving_company':self.receiving_company_cf
-                                },fields=['receiving_bank_account'])
+        # receiving_bank_account_list=frappe.db.get_list('Inter Company Settings Mapping CT',filters={
+        #                         'sending_company': self.company,
+        #                         'sending_bank_account':self.paid_to,
+        #                         'receiving_company':self.receiving_company_cf
+        #                         },fields=['receiving_bank_account'])
+        receiving_bank_account_list=frappe.db.get_list('Account',filters={
+                                'account_name': frappe.db.get_value("Account", self.paid_to, "account_name"),
+                                'account_type':'Bank',
+                                'company':self.receiving_company_cf
+                                },fields=['name'])        
         # if len(receiving_bank_account_list)<1:
         #     msg = _('There is no inter company mapping. Please set at {0}'
         #             .format(frappe.bold(get_link_to_form('Inter Company Settings CD','Inter Company Settings CD'))))   
@@ -340,11 +345,11 @@ def on_submit_payment_entry_create_inter_company_je(self,method):
         if len(receiving_bank_account_list)<1:
             receiving_bank_account=None
         else:
-            receiving_bank_account=receiving_bank_account_list[0].receiving_bank_account
+            receiving_bank_account=receiving_bank_account_list[0].name
 
         if len(receiving_bank_account_list)<1 or not receiving_bank_account:
-            msg = _('Receiving company bank account mapping is not found at {3}. <br> It is not found for Sending Company: {0}, Sending Bank Account: {1} & Receiving Company: {2}.'
-                .format(self.company,self.paid_to,self.receiving_company_cf,frappe.bold(get_link_to_form('Inter Company Settings CD','Inter Company Settings CD'))))   
+            msg = _('Receiving company bank account mapping is not found . <br> It is not found for Sending Company: {0}, Sending Bank Account: {1} & Receiving Company: {2}.'
+                .format(self.company,self.paid_to,self.receiving_company_cf))   
             frappe.throw(msg)                 
         receiving_company_cost_center=frappe.db.get_value("Company", self.company, "cost_center")
         if not receiving_company_cost_center:
