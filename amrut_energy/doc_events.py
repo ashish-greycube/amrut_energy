@@ -333,14 +333,16 @@ def on_submit_payment_entry_create_inter_company_je(self,method):
                                 'sending_bank_account':self.paid_to,
                                 'receiving_company':self.receiving_company_cf
                                 },fields=['receiving_bank_account'])
+        # if len(receiving_bank_account_list)<1:
+        #     msg = _('There is no inter company mapping. Please set at {0}'
+        #             .format(frappe.bold(get_link_to_form('Inter Company Settings CD','Inter Company Settings CD'))))   
+        #     frappe.throw(msg)            
         if len(receiving_bank_account_list)<1:
-            msg = _('There is no inter company mapping. Please set at {0}'
-                    .format(frappe.bold(get_link_to_form('Inter Company Settings CD','Inter Company Settings CD'))))   
-            frappe.throw(msg)            
-        
-        receiving_bank_account=receiving_bank_account_list[0].receiving_bank_account
+            receiving_bank_account=None
+        else:
+            receiving_bank_account=receiving_bank_account_list[0].receiving_bank_account
 
-        if not receiving_bank_account:
+        if len(receiving_bank_account_list)<1 or not receiving_bank_account:
             msg = _('Receiving company bank account mapping is not found {3}. /n It was not found for Sending Company: {0}, Sending Bank Account: {1}, Receiving Company: {2}.'
                 .format(self.company,self.paid_to,self.receiving_company_cf,frappe.bold(get_link_to_form('Inter Company Settings CD','Inter Company Settings CD'))))   
             frappe.throw(msg)                 
