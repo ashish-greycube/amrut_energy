@@ -12,13 +12,13 @@ def execute(filters=None):
 def get_data(filters):
     filters = frappe._dict(filters or {})
     data = frappe.db.sql(
-        """SELECT  (je.user_remark) as payment_entry,je.posting_date as posting_date,
+        """SELECT * from (SELECT  (je.user_remark) as payment_entry,je.posting_date as posting_date,
         je.name as sending_journal_entry,
         je.inter_company_journal_entry_reference as receiving_journal_entry  
         FROM `tabJournal Entry` je 
         where je.voucher_type ='Inter Company Journal Entry' and je.docstatus !=2 and je.user_remark is not null 
         and je.posting_date between  %(from_date)s and %(to_date)s
-        group by je.user_remark  order by je.name ASC , je.posting_date asc           
+        group by je.user_remark  order by je.name ASC ) t order by t.payment_entry desc         
     """,filters,
         as_dict=True,
         debug=True,
