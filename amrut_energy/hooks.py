@@ -97,7 +97,7 @@ doc_events = {
     },
     "Payment Entry": {
         "validate": "amrut_energy.doc_events.on_validate_payment_entry",
-        "on_submit": "amrut_energy.doc_events.on_submit_payment_entry_create_inter_company_je"
+        # "on_submit": "amrut_energy.doc_events.on_submit_payment_entry_create_inter_company_je"
     },
     "Issue": {
         "validate": "amrut_energy.doc_events.on_validate_issue",

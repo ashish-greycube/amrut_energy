@@ -320,9 +320,16 @@ def on_before_insert_stock_entry(self,method):
             se_additional_cost.base_amount=(se_qty / bom_qty) * bom_row.amount
             frappe.msgprint(_("Additional cost {0} for account {1} is added from BOM").format(se_additional_cost.amount,se_additional_cost.expense_account), alert=True) 
 
+@frappe.whitelist()
+def on_submit_payment_entry_create_inter_company_je(docname,receiving_company_cf):
+    self=frappe.get_doc('Payment Entry',docname)
+    if receiving_company_cf==None:
+            msg = _('Receiving Company is not defined.')   
+            frappe.throw(msg)        
+    if self.create_inter_company_journal_entry_cf==0 and self.payment_type=='Receive':
+        frappe.db.set_value('Payment Entry',docname ,'receiving_company_cf', receiving_company_cf)
+        frappe.db.set_value('Payment Entry',docname ,'create_inter_company_journal_entry_cf', 1)
 
-def on_submit_payment_entry_create_inter_company_je(self,method):
-    if self.create_inter_company_journal_entry_cf==1 and self.receiving_company_cf and self.payment_type=='Receive':
         voucher_type='Inter Company Journal Entry'
         precision = frappe.get_precision("Journal Entry Account", "debit_in_account_currency")
         sending_inter_company_journal_entry_reference=None
@@ -331,12 +338,12 @@ def on_submit_payment_entry_create_inter_company_je(self,method):
         # receiving_bank_account_list=frappe.db.get_list('Inter Company Settings Mapping CT',filters={
         #                         'sending_company': self.company,
         #                         'sending_bank_account':self.paid_to,
-        #                         'receiving_company':self.receiving_company_cf
+        #                         'receiving_company':receiving_company_cf
         #                         },fields=['receiving_bank_account'])
         receiving_bank_account_list=frappe.db.get_list('Account',filters={
                                 'account_name': frappe.db.get_value("Account", self.paid_to, "account_name"),
                                 'account_type':'Bank',
-                                'company':self.receiving_company_cf
+                                'company':receiving_company_cf
                                 },fields=['name'])        
         # if len(receiving_bank_account_list)<1:
         #     msg = _('There is no inter company mapping. Please set at {0}'
@@ -349,7 +356,7 @@ def on_submit_payment_entry_create_inter_company_je(self,method):
 
         if len(receiving_bank_account_list)<1 or not receiving_bank_account:
             msg = _('Receiving company bank account mapping is not found . <br> It is not found for Sending Company: {0}, Sending Bank Account: {1} & Receiving Company: {2}.'
-                .format(self.company,self.paid_to,self.receiving_company_cf))   
+                .format(self.company,self.paid_to,receiving_company_cf))   
             frappe.throw(msg)                 
         receiving_company_cost_center=frappe.db.get_value("Company", self.company, "cost_center")
         if not receiving_company_cost_center:
@@ -362,12 +369,12 @@ def on_submit_payment_entry_create_inter_company_je(self,method):
                 .format(frappe.bold(get_link_to_form('Company',self.company))))   
             frappe.throw(msg)                     
         credit_supplier_list=frappe.db.get_list('Supplier',filters={
-        'represents_company': self.receiving_company_cf,
+        'represents_company': receiving_company_cf,
         'is_internal_supplier':1
         },fields=['name'])
         if len(credit_supplier_list)<1:
             msg = _('There is no internal supplier set for receiving company {0}. Please create an internal suppplier for this company.'
-                .format(self.receiving_company_cf))   
+                .format(receiving_company_cf))   
             frappe.throw(msg) 
         credit_supplier=credit_supplier_list[0].name
 
@@ -377,16 +384,16 @@ def on_submit_payment_entry_create_inter_company_je(self,method):
                 .format(frappe.bold(get_link_to_form('Payment Entry',self.name))))  
             frappe.throw(msg)
 
-        receiving_company_cost_center=frappe.db.get_value("Company", self.receiving_company_cf, "cost_center")
+        receiving_company_cost_center=frappe.db.get_value("Company", receiving_company_cf, "cost_center")
         if not receiving_company_cost_center:
             msg = _('Cost center is not defined in company {0}.'
                    .format(frappe.bold(get_link_to_form('Company',self.company))))   
             frappe.throw(msg)
 
-        default_company_debit_account=frappe.db.get_value("Company", self.receiving_company_cf, "default_receivable_account")            
+        default_company_debit_account=frappe.db.get_value("Company", receiving_company_cf, "default_receivable_account")            
         if not default_company_debit_account:
             msg = _('Default receivable account is not set for company {0}.'
-                .format(frappe.bold(get_link_to_form('Company',self.receiving_company_cf))))   
+                .format(frappe.bold(get_link_to_form('Company',receiving_company_cf))))   
             frappe.throw(msg)             
 
         debit_customer_list=frappe.db.get_list('Customer',filters={
@@ -445,7 +452,7 @@ def on_submit_payment_entry_create_inter_company_je(self,method):
             receiving_journal_entry = frappe.new_doc("Journal Entry")
             receiving_journal_entry.voucher_type = voucher_type
             receiving_journal_entry.user_remark = _("{0}").format(self.name)
-            receiving_journal_entry.company = self.receiving_company_cf
+            receiving_journal_entry.company = receiving_company_cf
             receiving_journal_entry.posting_date = self.posting_date
             receiving_journal_entry.set("accounts", receiving_accounts)
             receiving_journal_entry.inter_company_journal_entry_reference=sending_journal_entry.name
