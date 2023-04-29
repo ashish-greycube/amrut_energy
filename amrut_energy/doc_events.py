@@ -412,15 +412,15 @@ def on_submit_payment_entry_create_inter_company_je(docname,receiving_company_cf
             sending_accounts = []
             # credit entry
             sending_accounts.append({
-                "account": default_company_credit_account,
-                "party_type":"Supplier",
-                "party":credit_supplier,
+                "account": self.paid_to,
                 "credit_in_account_currency": flt(self.paid_amount, precision),
                 "cost_center": sending_company_cost_center or ''
             })
             # debit entry
             sending_accounts.append({
-                "account": self.paid_to,
+                "account": default_company_credit_account,
+                "party_type":"Supplier",
+                "party":credit_supplier,            
                 "debit_in_account_currency": flt(self.paid_amount, precision),
                 "cost_center": sending_company_cost_center or ''
             })		
@@ -437,15 +437,15 @@ def on_submit_payment_entry_create_inter_company_je(docname,receiving_company_cf
             receiving_accounts = []
             # credit entry
             receiving_accounts.append({
-                "account": receiving_bank_account,
+                "account": default_company_debit_account,
+                "party_type":"Customer",
+                "party":debit_customer,                
                 "credit_in_account_currency": flt(self.paid_amount, precision),
                 "cost_center": receiving_company_cost_center or ''
             })
             # debit entry
             receiving_accounts.append({
-                "account": default_company_debit_account,
-                "party_type":"Customer",
-                "party":debit_customer,
+                "account": receiving_bank_account,
                 "debit_in_account_currency": flt(self.paid_amount, precision),
                 "cost_center": receiving_company_cost_center or ''
             })      
