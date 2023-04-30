@@ -378,17 +378,22 @@ def on_submit_payment_entry_create_inter_company_je(docname,receiving_company_cf
             frappe.throw(msg) 
         credit_supplier=credit_supplier_list[0].name
 
-        sending_company_cost_center=self.cost_center
-        if not sending_company_cost_center:
-            msg = _('Cost center is not defined in payment entry {0}.'
-                .format(frappe.bold(get_link_to_form('Payment Entry',self.name))))  
-            frappe.throw(msg)
+        sending_company_cost_center=None
+        if self.cost_center:
+            sending_company_cost_center=self.cost_center
+        if sending_company_cost_center==None:
+            sending_company_cost_center=frappe.db.get_value("Company", self.company, "cost_center") 
 
-        receiving_company_cost_center=frappe.db.get_value("Company", receiving_company_cf, "cost_center")
-        if not receiving_company_cost_center:
-            msg = _('Cost center is not defined in company {0}.'
-                   .format(frappe.bold(get_link_to_form('Company',self.company))))   
-            frappe.throw(msg)
+        # if not sending_company_cost_center:
+        #     msg = _('Cost center is not defined in payment entry {0}.'
+        #         .format(frappe.bold(get_link_to_form('Payment Entry',self.name))))  
+        #     frappe.throw(msg)
+
+        receiving_company_cost_center=frappe.db.get_value("Company", receiving_company_cf, "cost_center") 
+        # if not receiving_company_cost_center:
+        #     msg = _('Cost center is not defined in company {0}.'
+        #            .format(frappe.bold(get_link_to_form('Company',self.company))))   
+        #     frappe.throw(msg)
 
         default_company_debit_account=frappe.db.get_value("Company", receiving_company_cf, "default_receivable_account")            
         if not default_company_debit_account:
