@@ -110,7 +110,7 @@ doc_events = {
         "after_insert": "amrut_energy.doc_events.on_insert_quotation_for_engati_chat_generate_PDF",
     },
     "Delivery Note": {
-        "validate": "amrut_energy.doc_events.on_validate_delivery_note",
+        # "validate": "amrut_energy.doc_events.on_validate_delivery_note",
     },
     "Stock Entry": {
         "before_insert": "amrut_energy.doc_events.on_before_insert_stock_entry",
