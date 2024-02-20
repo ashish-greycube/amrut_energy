@@ -273,6 +273,8 @@ def validate_gstin_for_tax_id(doc, method):
 
 
 def on_validate_delivery_note(doc, method):
+    '''Deprecated. Use wms_mobile on_validate_delivery_note'''
+    return
     if doc.is_new():
 
         # update serial no from sales order item if present
