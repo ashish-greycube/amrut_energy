@@ -503,3 +503,180 @@ def on_submit_payment_entry_create_inter_company_je(docname,receiving_company_cf
 #             # frappe.delete_doc('Journal Entry', inter_company_journal_entry_reference)
 #             msg = _('Journal Entry {0} is deleted.'.format(frappe.bold(inter_company_journal_entry_reference)))   
 #             frappe.msgprint(msg)            
+
+
+def on_submit_serial_and_batch_bundle(doc, method):
+    # set serial no values from S&BB
+    # doc = frappe.get_doc("Serial and Batch Bundle", frappe.form_dict["name"])
+
+    def handle_return(type_of_transaction, entries):
+        clear_fields = ()
+        if type_of_transaction == "Outward":
+            clear_fields = (
+                "custom_creation_document_type",
+                "custom_creation_document_no",
+                "custom_creation_date",
+                "custom_creation_time",
+            )
+        elif type_of_transaction == "Inward":
+            clear_fields = (
+                "custom_delivery_document_type",
+                "custom_delivery_document_no",
+                "custom_delivery_date",
+                "custom_delivery_time",
+            )
+
+        for d in entries:
+            serial_no_doc = frappe.get_doc("Serial No", d.serial_no)
+            for d in clear_fields:
+                serial_no_doc.set(d, None)
+
+            for d in (
+                "custom_supplier",
+                "custom_customer",
+                "custom_territory",
+                "custom_sales_invoice",
+                "warranty_period",
+                "warranty_expiry_date",
+                "maintenance_status ",
+            ):
+
+                serial_no_doc.set(d, None)
+
+            serial_no_doc.save()
+
+    if doc.voucher_type in (
+        "Purchase Receipt",
+        "Delivery Note",
+    ) and frappe.db.get_value(doc.voucher_type, doc.voucher_no, "is_return"):
+        handle_return(doc.type_of_transaction, doc.entries)
+
+    else:
+
+        frappe.log_error("sabb", doc.name)
+
+        for d in doc.entries:
+            serial_no_doc = frappe.get_doc("Serial No", d.serial_no)
+
+            if doc.type_of_transaction == "Inward":
+                if not serial_no_doc.custom_creation_document_type:
+                    serial_no_doc.custom_creation_document_type = doc.voucher_type
+                if not serial_no_doc.custom_creation_document_no:
+                    serial_no_doc.custom_creation_document_no = doc.voucher_no
+                if not serial_no_doc.custom_creation_date:
+                    serial_no_doc.custom_creation_date = doc.posting_date
+                if not serial_no_doc.custom_creation_time:
+                    serial_no_doc.custom_creation_time = doc.posting_time
+
+                if doc.voucher_type in ["Purchase Receipt", "Purchase Invoice"]:
+                    supplier = frappe.db.get_value(
+                        doc.voucher_type, doc.voucher_no, "supplier"
+                    )
+                    if supplier:
+                        serial_no_doc.custom_supplier = supplier
+
+            elif doc.type_of_transaction == "Outward":
+                if not serial_no_doc.custom_delivery_document_type:
+                    serial_no_doc.custom_delivery_document_type = doc.voucher_type
+                if not serial_no_doc.custom_delivery_document_no:
+                    serial_no_doc.custom_delivery_document_no = doc.voucher_no
+                if not serial_no_doc.custom_delivery_date:
+                    serial_no_doc.custom_delivery_date = doc.posting_date
+                if not serial_no_doc.custom_delivery_time:
+                    serial_no_doc.custom_delivery_time = doc.posting_time
+
+                if doc.voucher_type in ["Delivery Note", "Sales Invoice"]:
+                    customer = frappe.db.get_value(
+                        doc.voucher_type, doc.voucher_no, "customer"
+                    )
+                    serial_no_doc.custom_customer = customer
+
+                    territory = frappe.db.get_value("Customer", customer, "territory")
+                    serial_no_doc.custom_territory = territory
+
+            if doc.voucher_type == "Delivery Note" and doc.voucher_no:
+                # Set Sales Invoice
+                # In case SI is created , then DN is created..
+                # Reverse scenario i.e. DN created first later SI created , is handled in on_submit SI doc_event
+                for d in frappe.db.sql(
+                    """
+                    select tsii.parent sales_invoice 
+                    from `tabSerial and Batch Bundle` tsabb 
+                    inner join `tabSales Invoice Item` tsii on tsii.delivery_note = tsabb.voucher_no  
+                    where tsabb.name = %s
+                """,
+                    (doc.name),
+                ):
+                    serial_no_doc.custom_sales_invoice = d[0]
+
+                tdni = frappe.get_value(
+                    "Delivery Note Item", {"serial_and_batch_bundle": doc.name}
+                )
+
+                for d in frappe.db.sql(
+                    """
+                    select 
+                        tdni.custom_warranty_period 
+                    from `tabDelivery Note Item` tdni  
+                    left outer join `tabPacked Item` tpi
+                    on tpi.parenttype = 'Delivery Note' and tpi.parent_detail_docname = tdni.name  
+                        and tpi.parent = tdni.parent
+                    where tdni.name = %s
+                        and COALESCE(tdni.custom_warranty_period,0) > 0
+                """,
+                    (doc.voucher_detail_no,),
+                ):
+                    warranty_period = frappe.utils.cint(d[0])
+
+                    serial_no_doc.custom_warranty_period_days = warranty_period
+                    serial_no_doc.warranty_period = (
+                        warranty_period  # gets overwritten by erpnext
+                    )
+                    serial_no_doc.warranty_expiry_date = frappe.utils.add_days(
+                        doc.posting_date, warranty_period
+                    )
+                    serial_no_doc.maintenance_status = "Under Warranty"
+
+            serial_no_doc.save()
+
+    frappe.db.commit()
+
+
+def on_cancel_serial_and_batch_bundle(doc, method):
+    for d in doc.entries:
+        serial_no_doc = frappe.get_doc("Serial No", d.serial_no)
+        if doc.voucher_type == "Purchase Receipt":
+            for field in [
+                "custom_creation_document_type",
+                "custom_creation_document_no",
+                "custom_creation_date",
+                "custom_creation_time",
+                "custom_supplier",
+            ]:
+                serial_no_doc.set(field, None)
+        elif doc.voucher_type == "Delivery Note":
+            for field in [
+                "custom_delivery_document_type",
+                "custom_delivery_document_no",
+                "custom_delivery_date",
+                "custom_delivery_time",
+                "custom_customer",
+                "custom_territory",
+            ]:
+                serial_no_doc.set(field, None)
+        serial_no_doc.save()
+
+
+def on_submit_sales_invoice(doc, method):
+    # for scenario where DN created first , then SI created, on_submit SI doc_event to handle
+    for d in doc.items:
+        if d.delivery_note:
+            for sabb in frappe.db.get_all(
+                "Serial and Batch Bundle",
+                {"voucher_type": "Delivery Note", "voucher_no": d.delivery_note},
+            ):
+                sabb_doc = frappe.get_doc("Serial and Batch Bundle", sabb.name)
+                for ent in sabb_doc.entries:
+                    frappe.db.set_value(
+                        "Serial No", ent.serial_no, "custom_sales_invoice", doc.name
+                    )

@@ -30,7 +30,7 @@ doctype_js = {
     "Item": "public/js/item.js",
     "Quotation": "public/js/quotation.js",
     "Issue": "public/js/issue.js",
-    "Payment Entry":"public/js/payment_entry.js"
+    "Payment Entry": "public/js/payment_entry.js",
 }
 # doctype_list_js = {"doctype" : "public/js/doctype_list.js"}
 # doctype_tree_js = {"doctype" : "public/js/doctype_tree.js"}
@@ -114,7 +114,12 @@ doc_events = {
     },
     "Stock Entry": {
         "before_insert": "amrut_energy.doc_events.on_before_insert_stock_entry",
-    },    
+    },
+    "Serial and Batch Bundle": {
+        "on_submit": "amrut_energy.doc_events.on_submit_serial_and_batch_bundle",
+        "on_cancel": "amrut_energy.doc_events.on_cancel_serial_and_batch_bundle",
+    },
+    "Sales Invoice": {"on_submit": "amrut_energy.doc_events.on_submit_sales_invoice"},
 }
 
 # Scheduled Tasks
