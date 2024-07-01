@@ -608,6 +608,8 @@ def on_submit_serial_and_batch_bundle(doc, method):
                 "custom_warranty_period_days",
                 "warranty_expiry_date",
                 "maintenance_status",
+                "custom_customer",
+                "custom_territory",
             )
 
         for d in entries:
@@ -616,17 +618,9 @@ def on_submit_serial_and_batch_bundle(doc, method):
                 if serial_no_doc.get(d):
                     serial_no_doc.set(d, None)
 
-            for d in (
-                "custom_supplier",
-                "custom_customer",
-                "custom_territory",
-                "custom_sales_invoice",
-                "warranty_period",
-                "warranty_expiry_date",
-                "maintenance_status ",
-            ):
-
-                serial_no_doc.set(d, None)
+            if doc.voucher_type in ["Purchase Receipt", "Purchase Invoice"]:
+                if serial_no_doc.custom_supplier:
+                    serial_no_doc.set("custom_supplier", None)
 
             serial_no_doc.save()
 
@@ -753,6 +747,11 @@ def on_cancel_serial_and_batch_bundle(doc, method):
                 "maintenance_status",
             ]:
                 serial_no_doc.set(field, None)
+
+        if doc.voucher_type in ["Purchase Receipt", "Purchase Invoice"]:
+            if serial_no_doc.custom_supplier:
+                serial_no_doc.set("custom_supplier", None)
+
         serial_no_doc.save()
 
 
