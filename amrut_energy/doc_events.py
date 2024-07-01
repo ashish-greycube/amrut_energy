@@ -11,6 +11,7 @@ from frappe.utils import flt, getdate, nowdate, add_days, today, get_url, cstr
 from erpnext import get_company_currency, get_default_company
 from frappe.utils.file_manager import MaxFileSizeReachedError
 import re
+
 # from erpnext.regional.india.utils import validate_gstin_check_digit
 from india_compliance.gst_india.utils import validate_gstin_check_digit
 from frappe.utils.csvutils import getlink
@@ -273,7 +274,7 @@ def validate_gstin_for_tax_id(doc, method):
 
 
 def on_validate_delivery_note(doc, method):
-    '''Deprecated. Use wms_mobile on_validate_delivery_note'''
+    """Deprecated. Use wms_mobile on_validate_delivery_note"""
     return
     if doc.is_new():
 
@@ -308,175 +309,254 @@ def on_validate_delivery_note(doc, method):
                         item.serial_no = d.serial_no
 
 
-def on_before_insert_stock_entry(self,method):
-    if self.purpose == 'Manufacture' and self.bom_no:
-        bom=frappe.get_doc('BOM',self.bom_no)
-        bom_qty=bom.quantity
-        se_qty=self.fg_completed_qty
+def on_before_insert_stock_entry(self, method):
+    if self.purpose == "Manufacture" and self.bom_no:
+        bom = frappe.get_doc("BOM", self.bom_no)
+        bom_qty = bom.quantity
+        se_qty = self.fg_completed_qty
         for bom_row in bom.get("additional_cost_cf"):
-            se_additional_cost=self.append("additional_costs",{})
-            se_additional_cost.expense_account=bom_row.expense_account
-            se_additional_cost.description=bom_row.description
-            se_additional_cost.exchange_rate=1
-            se_additional_cost.amount=(se_qty / bom_qty) * bom_row.amount
-            se_additional_cost.base_amount=(se_qty / bom_qty) * bom_row.amount
-            frappe.msgprint(_("Additional cost {0} for account {1} is added from BOM").format(se_additional_cost.amount,se_additional_cost.expense_account), alert=True) 
+            se_additional_cost = self.append("additional_costs", {})
+            se_additional_cost.expense_account = bom_row.expense_account
+            se_additional_cost.description = bom_row.description
+            se_additional_cost.exchange_rate = 1
+            se_additional_cost.amount = (se_qty / bom_qty) * bom_row.amount
+            se_additional_cost.base_amount = (se_qty / bom_qty) * bom_row.amount
+            frappe.msgprint(
+                _("Additional cost {0} for account {1} is added from BOM").format(
+                    se_additional_cost.amount, se_additional_cost.expense_account
+                ),
+                alert=True,
+            )
+
 
 @frappe.whitelist()
-def on_submit_payment_entry_create_inter_company_je(docname,receiving_company_cf):
-    self=frappe.get_doc('Payment Entry',docname)
-    if receiving_company_cf==None:
-            msg = _('Receiving Company is not defined.')   
-            frappe.throw(msg)        
-    if self.create_inter_company_journal_entry_cf==0 and self.payment_type=='Receive':
-        frappe.db.set_value('Payment Entry',docname ,'receiving_company_cf', receiving_company_cf)
-        frappe.db.set_value('Payment Entry',docname ,'create_inter_company_journal_entry_cf', 1)
+def on_submit_payment_entry_create_inter_company_je(docname, receiving_company_cf):
+    self = frappe.get_doc("Payment Entry", docname)
+    if receiving_company_cf == None:
+        msg = _("Receiving Company is not defined.")
+        frappe.throw(msg)
+    if (
+        self.create_inter_company_journal_entry_cf == 0
+        and self.payment_type == "Receive"
+    ):
+        frappe.db.set_value(
+            "Payment Entry", docname, "receiving_company_cf", receiving_company_cf
+        )
+        frappe.db.set_value(
+            "Payment Entry", docname, "create_inter_company_journal_entry_cf", 1
+        )
 
-        voucher_type='Inter Company Journal Entry'
-        precision = frappe.get_precision("Journal Entry Account", "debit_in_account_currency")
-        sending_inter_company_journal_entry_reference=None
-        receiving_inter_company_journal_entry_reference=None
-    
+        voucher_type = "Inter Company Journal Entry"
+        precision = frappe.get_precision(
+            "Journal Entry Account", "debit_in_account_currency"
+        )
+        sending_inter_company_journal_entry_reference = None
+        receiving_inter_company_journal_entry_reference = None
+
         # receiving_bank_account_list=frappe.db.get_list('Inter Company Settings Mapping CT',filters={
         #                         'sending_company': self.company,
         #                         'sending_bank_account':self.paid_to,
         #                         'receiving_company':receiving_company_cf
         #                         },fields=['receiving_bank_account'])
-        receiving_bank_account_list=frappe.db.get_list('Account',filters={
-                                'account_name': frappe.db.get_value("Account", self.paid_to, "account_name"),
-                                'account_type':'Bank',
-                                'company':receiving_company_cf
-                                },fields=['name'])        
+        receiving_bank_account_list = frappe.db.get_list(
+            "Account",
+            filters={
+                "account_name": frappe.db.get_value(
+                    "Account", self.paid_to, "account_name"
+                ),
+                "account_type": "Bank",
+                "company": receiving_company_cf,
+            },
+            fields=["name"],
+        )
         # if len(receiving_bank_account_list)<1:
         #     msg = _('There is no inter company mapping. Please set at {0}'
-        #             .format(frappe.bold(get_link_to_form('Inter Company Settings CD','Inter Company Settings CD'))))   
-        #     frappe.throw(msg)            
-        if len(receiving_bank_account_list)<1:
-            receiving_bank_account=None
+        #             .format(frappe.bold(get_link_to_form('Inter Company Settings CD','Inter Company Settings CD'))))
+        #     frappe.throw(msg)
+        if len(receiving_bank_account_list) < 1:
+            receiving_bank_account = None
         else:
-            receiving_bank_account=receiving_bank_account_list[0].name
+            receiving_bank_account = receiving_bank_account_list[0].name
 
-        if len(receiving_bank_account_list)<1 or not receiving_bank_account:
-            msg = _('Receiving company bank account mapping is not found . <br> It is not found for Sending Company: {0}, Sending Bank Account: {1} & Receiving Company: {2}.'
-                .format(self.company,self.paid_to,receiving_company_cf))   
-            frappe.throw(msg)                 
-        receiving_company_cost_center=frappe.db.get_value("Company", self.company, "cost_center")
+        if len(receiving_bank_account_list) < 1 or not receiving_bank_account:
+            msg = _(
+                "Receiving company bank account mapping is not found . <br> It is not found for Sending Company: {0}, Sending Bank Account: {1} & Receiving Company: {2}.".format(
+                    self.company, self.paid_to, receiving_company_cf
+                )
+            )
+            frappe.throw(msg)
+        receiving_company_cost_center = frappe.db.get_value(
+            "Company", self.company, "cost_center"
+        )
         if not receiving_company_cost_center:
-            msg = _('Default cost center is not set for company {0}.'
-                .format(frappe.bold(get_link_to_form('Company',self.company))))   
-            frappe.throw(msg)  
-        default_company_credit_account=frappe.db.get_value("Company", self.company, "default_payable_account")
+            msg = _(
+                "Default cost center is not set for company {0}.".format(
+                    frappe.bold(get_link_to_form("Company", self.company))
+                )
+            )
+            frappe.throw(msg)
+        default_company_credit_account = frappe.db.get_value(
+            "Company", self.company, "default_payable_account"
+        )
         if not default_company_credit_account:
-            msg = _('Default payable account is not set for company {0}.'
-                .format(frappe.bold(get_link_to_form('Company',self.company))))   
-            frappe.throw(msg)                     
-        credit_supplier_list=frappe.db.get_list('Supplier',filters={
-        'represents_company': receiving_company_cf,
-        'is_internal_supplier':1
-        },fields=['name'])
-        if len(credit_supplier_list)<1:
-            msg = _('There is no internal supplier set for receiving company {0}. Please create an internal suppplier for this company.'
-                .format(receiving_company_cf))   
-            frappe.throw(msg) 
-        credit_supplier=credit_supplier_list[0].name
+            msg = _(
+                "Default payable account is not set for company {0}.".format(
+                    frappe.bold(get_link_to_form("Company", self.company))
+                )
+            )
+            frappe.throw(msg)
+        credit_supplier_list = frappe.db.get_list(
+            "Supplier",
+            filters={
+                "represents_company": receiving_company_cf,
+                "is_internal_supplier": 1,
+            },
+            fields=["name"],
+        )
+        if len(credit_supplier_list) < 1:
+            msg = _(
+                "There is no internal supplier set for receiving company {0}. Please create an internal suppplier for this company.".format(
+                    receiving_company_cf
+                )
+            )
+            frappe.throw(msg)
+        credit_supplier = credit_supplier_list[0].name
 
-        sending_company_cost_center=None
+        sending_company_cost_center = None
         if self.cost_center:
-            sending_company_cost_center=self.cost_center
-        if sending_company_cost_center==None:
-            sending_company_cost_center=frappe.db.get_value("Company", self.company, "cost_center") 
+            sending_company_cost_center = self.cost_center
+        if sending_company_cost_center == None:
+            sending_company_cost_center = frappe.db.get_value(
+                "Company", self.company, "cost_center"
+            )
 
         # if not sending_company_cost_center:
         #     msg = _('Cost center is not defined in payment entry {0}.'
-        #         .format(frappe.bold(get_link_to_form('Payment Entry',self.name))))  
+        #         .format(frappe.bold(get_link_to_form('Payment Entry',self.name))))
         #     frappe.throw(msg)
 
-        receiving_company_cost_center=frappe.db.get_value("Company", receiving_company_cf, "cost_center") 
+        receiving_company_cost_center = frappe.db.get_value(
+            "Company", receiving_company_cf, "cost_center"
+        )
         # if not receiving_company_cost_center:
         #     msg = _('Cost center is not defined in company {0}.'
-        #            .format(frappe.bold(get_link_to_form('Company',self.company))))   
+        #            .format(frappe.bold(get_link_to_form('Company',self.company))))
         #     frappe.throw(msg)
 
-        default_company_debit_account=frappe.db.get_value("Company", receiving_company_cf, "default_receivable_account")            
+        default_company_debit_account = frappe.db.get_value(
+            "Company", receiving_company_cf, "default_receivable_account"
+        )
         if not default_company_debit_account:
-            msg = _('Default receivable account is not set for company {0}.'
-                .format(frappe.bold(get_link_to_form('Company',receiving_company_cf))))   
-            frappe.throw(msg)             
+            msg = _(
+                "Default receivable account is not set for company {0}.".format(
+                    frappe.bold(get_link_to_form("Company", receiving_company_cf))
+                )
+            )
+            frappe.throw(msg)
 
-        debit_customer_list=frappe.db.get_list('Customer',filters={
-        'represents_company': self.company,
-        'is_internal_customer':1
-        },fields=['name'])
-        if len(debit_customer_list)<1:
-            msg = _('There is no internal customer set for sending company {0}. Please create an internal customer for this company.'
-                .format(self.company))   
-            frappe.throw(msg) 
-        debit_customer=debit_customer_list[0].name
-
+        debit_customer_list = frappe.db.get_list(
+            "Customer",
+            filters={"represents_company": self.company, "is_internal_customer": 1},
+            fields=["name"],
+        )
+        if len(debit_customer_list) < 1:
+            msg = _(
+                "There is no internal customer set for sending company {0}. Please create an internal customer for this company.".format(
+                    self.company
+                )
+            )
+            frappe.throw(msg)
+        debit_customer = debit_customer_list[0].name
 
         try:
             # sending company : i.e. branch
             sending_accounts = []
             # credit entry
-            sending_accounts.append({
-                "account": self.paid_to,
-                "credit_in_account_currency": flt(self.paid_amount, precision),
-                "cost_center": sending_company_cost_center or ''
-            })
+            sending_accounts.append(
+                {
+                    "account": self.paid_to,
+                    "credit_in_account_currency": flt(self.paid_amount, precision),
+                    "cost_center": sending_company_cost_center or "",
+                }
+            )
             # debit entry
-            sending_accounts.append({
-                "account": default_company_credit_account,
-                "party_type":"Supplier",
-                "party":credit_supplier,            
-                "debit_in_account_currency": flt(self.paid_amount, precision),
-                "cost_center": sending_company_cost_center or ''
-            })		
+            sending_accounts.append(
+                {
+                    "account": default_company_credit_account,
+                    "party_type": "Supplier",
+                    "party": credit_supplier,
+                    "debit_in_account_currency": flt(self.paid_amount, precision),
+                    "cost_center": sending_company_cost_center or "",
+                }
+            )
             sending_journal_entry = frappe.new_doc("Journal Entry")
             sending_journal_entry.voucher_type = voucher_type
             sending_journal_entry.user_remark = _("{0}").format(self.name)
             sending_journal_entry.company = self.company
             sending_journal_entry.posting_date = self.posting_date
             sending_journal_entry.set("accounts", sending_accounts)
-            sending_journal_entry.save(ignore_permissions=True) 
+            sending_journal_entry.save(ignore_permissions=True)
             sending_journal_entry.submit()
 
             # receiving company : i.e. head office
             receiving_accounts = []
             # credit entry
-            receiving_accounts.append({
-                "account": default_company_debit_account,
-                "party_type":"Customer",
-                "party":debit_customer,                
-                "credit_in_account_currency": flt(self.paid_amount, precision),
-                "cost_center": receiving_company_cost_center or ''
-            })
+            receiving_accounts.append(
+                {
+                    "account": default_company_debit_account,
+                    "party_type": "Customer",
+                    "party": debit_customer,
+                    "credit_in_account_currency": flt(self.paid_amount, precision),
+                    "cost_center": receiving_company_cost_center or "",
+                }
+            )
             # debit entry
-            receiving_accounts.append({
-                "account": receiving_bank_account,
-                "debit_in_account_currency": flt(self.paid_amount, precision),
-                "cost_center": receiving_company_cost_center or ''
-            })      
+            receiving_accounts.append(
+                {
+                    "account": receiving_bank_account,
+                    "debit_in_account_currency": flt(self.paid_amount, precision),
+                    "cost_center": receiving_company_cost_center or "",
+                }
+            )
             receiving_journal_entry = frappe.new_doc("Journal Entry")
             receiving_journal_entry.voucher_type = voucher_type
             receiving_journal_entry.user_remark = _("{0}").format(self.name)
             receiving_journal_entry.company = receiving_company_cf
             receiving_journal_entry.posting_date = self.posting_date
             receiving_journal_entry.set("accounts", receiving_accounts)
-            receiving_journal_entry.inter_company_journal_entry_reference=sending_journal_entry.name
-            receiving_journal_entry.save(ignore_permissions=True)         
-            receiving_journal_entry.submit()  
+            receiving_journal_entry.inter_company_journal_entry_reference = (
+                sending_journal_entry.name
+            )
+            receiving_journal_entry.save(ignore_permissions=True)
+            receiving_journal_entry.submit()
 
-            frappe.db.set_value('Journal Entry', sending_journal_entry.name, 'inter_company_journal_entry_reference', receiving_journal_entry.name)
+            frappe.db.set_value(
+                "Journal Entry",
+                sending_journal_entry.name,
+                "inter_company_journal_entry_reference",
+                receiving_journal_entry.name,
+            )
 
-            msg = _('Receiving Company Journal Entry {0} is created.'.format(frappe.bold(get_link_to_form('Journal Entry',receiving_journal_entry.name))))   
-            frappe.msgprint(msg)            
-            
-            msg = _('Sending Company Journal Entry {0} is created.'.format(frappe.bold(get_link_to_form('Journal Entry',sending_journal_entry.name))))   
+            msg = _(
+                "Receiving Company Journal Entry {0} is created.".format(
+                    frappe.bold(
+                        get_link_to_form("Journal Entry", receiving_journal_entry.name)
+                    )
+                )
+            )
             frappe.msgprint(msg)
 
+            msg = _(
+                "Sending Company Journal Entry {0} is created.".format(
+                    frappe.bold(
+                        get_link_to_form("Journal Entry", sending_journal_entry.name)
+                    )
+                )
+            )
+            frappe.msgprint(msg)
 
         except Exception:
-            frappe.throw(frappe.get_traceback())    
+            frappe.throw(frappe.get_traceback())
 
 
 # def on_cancel_payment_entry_delete_inter_company_je(self,method):
@@ -487,22 +567,22 @@ def on_submit_payment_entry_create_inter_company_je(docname,receiving_company_cf
 #             doc = frappe.get_doc('Journal Entry', je.name)
 #             if doc.docstatus==1:
 #                 doc.cancel()
-#                 doc.delete()            
-#                 msg = _('Journal Entry {0} is deleted.'.format(frappe.bold(je.name)))   
-#                 frappe.msgprint(msg)            
+#                 doc.delete()
+#                 msg = _('Journal Entry {0} is deleted.'.format(frappe.bold(je.name)))
+#                 frappe.msgprint(msg)
 #             # doc = frappe.get_doc('Journal Entry', je.name)
 
 # def on_cancel_je_delete_corresponding_inter_company_je(self,method):
 #     inter_company_journal_entry_reference = frappe.db.get_value('Journal Entry', self.name, 'inter_company_journal_entry_reference')
-#     print('inter_company_journal_entry_reference',inter_company_journal_entry_reference)    
+#     print('inter_company_journal_entry_reference',inter_company_journal_entry_reference)
 #     if inter_company_journal_entry_reference:
 #         doc = frappe.get_doc('Journal Entry', inter_company_journal_entry_reference)
 #         if doc.docstatus==1:
 #             doc.cancel()
-#             doc.delete()         
+#             doc.delete()
 #             # frappe.delete_doc('Journal Entry', inter_company_journal_entry_reference)
-#             msg = _('Journal Entry {0} is deleted.'.format(frappe.bold(inter_company_journal_entry_reference)))   
-#             frappe.msgprint(msg)            
+#             msg = _('Journal Entry {0} is deleted.'.format(frappe.bold(inter_company_journal_entry_reference)))
+#             frappe.msgprint(msg)
 
 
 def on_submit_serial_and_batch_bundle(doc, method):
@@ -662,6 +742,10 @@ def on_cancel_serial_and_batch_bundle(doc, method):
                 "custom_delivery_time",
                 "custom_customer",
                 "custom_territory",
+                "warranty_period",
+                "custom_warranty_period_days",
+                "warranty_expiry_date",
+                "maintenance_status",
             ]:
                 serial_no_doc.set(field, None)
         serial_no_doc.save()
