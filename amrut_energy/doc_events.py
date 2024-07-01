@@ -604,12 +604,17 @@ def on_submit_serial_and_batch_bundle(doc, method):
                 "custom_delivery_document_no",
                 "custom_delivery_date",
                 "custom_delivery_time",
+                "warranty_period",
+                "custom_warranty_period_days",
+                "warranty_expiry_date",
+                "maintenance_status",
             )
 
         for d in entries:
             serial_no_doc = frappe.get_doc("Serial No", d.serial_no)
             for d in clear_fields:
-                serial_no_doc.set(d, None)
+                if serial_no_doc.get(d):
+                    serial_no_doc.set(d, None)
 
             for d in (
                 "custom_supplier",
