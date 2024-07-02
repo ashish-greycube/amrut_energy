@@ -585,6 +585,7 @@ def on_submit_payment_entry_create_inter_company_je(docname, receiving_company_c
 #             frappe.msgprint(msg)
 
 
+@frappe.whitelist()
 def on_submit_serial_and_batch_bundle(doc, method):
     # set serial no values from S&BB
     # doc = frappe.get_doc("Serial and Batch Bundle", frappe.form_dict["name"])
@@ -721,6 +722,7 @@ def on_submit_serial_and_batch_bundle(doc, method):
     frappe.db.commit()
 
 
+@frappe.whitelist()
 def on_cancel_serial_and_batch_bundle(doc, method):
     for d in doc.entries:
         serial_no_doc = frappe.get_doc("Serial No", d.serial_no)
@@ -755,6 +757,7 @@ def on_cancel_serial_and_batch_bundle(doc, method):
         serial_no_doc.save()
 
 
+@frappe.whitelist()
 def on_submit_sales_invoice(doc, method):
     # for scenario where DN created first , then SI created, on_submit SI doc_event to handle
     for d in doc.items:
