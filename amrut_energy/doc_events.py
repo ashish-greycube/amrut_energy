@@ -633,20 +633,14 @@ def on_submit_serial_and_batch_bundle(doc, method):
 
     else:
 
-        frappe.log_error("sabb", doc.name)
-
         for d in doc.entries:
             serial_no_doc = frappe.get_doc("Serial No", d.serial_no)
 
             if doc.type_of_transaction == "Inward":
-                if not serial_no_doc.custom_creation_document_type:
-                    serial_no_doc.custom_creation_document_type = doc.voucher_type
-                if not serial_no_doc.custom_creation_document_no:
-                    serial_no_doc.custom_creation_document_no = doc.voucher_no
-                if not serial_no_doc.custom_creation_date:
-                    serial_no_doc.custom_creation_date = doc.posting_date
-                if not serial_no_doc.custom_creation_time:
-                    serial_no_doc.custom_creation_time = doc.posting_time
+                serial_no_doc.custom_creation_document_type = doc.voucher_type
+                serial_no_doc.custom_creation_document_no = doc.voucher_no
+                serial_no_doc.custom_creation_date = doc.posting_date
+                serial_no_doc.custom_creation_time = doc.posting_time
 
                 if doc.voucher_type in ["Purchase Receipt", "Purchase Invoice"]:
                     supplier = frappe.db.get_value(
@@ -656,14 +650,10 @@ def on_submit_serial_and_batch_bundle(doc, method):
                         serial_no_doc.custom_supplier = supplier
 
             elif doc.type_of_transaction == "Outward":
-                if not serial_no_doc.custom_delivery_document_type:
-                    serial_no_doc.custom_delivery_document_type = doc.voucher_type
-                if not serial_no_doc.custom_delivery_document_no:
-                    serial_no_doc.custom_delivery_document_no = doc.voucher_no
-                if not serial_no_doc.custom_delivery_date:
-                    serial_no_doc.custom_delivery_date = doc.posting_date
-                if not serial_no_doc.custom_delivery_time:
-                    serial_no_doc.custom_delivery_time = doc.posting_time
+                serial_no_doc.custom_delivery_document_type = doc.voucher_type
+                serial_no_doc.custom_delivery_document_no = doc.voucher_no
+                serial_no_doc.custom_delivery_date = doc.posting_date
+                serial_no_doc.custom_delivery_time = doc.posting_time
 
                 if doc.voucher_type in ["Delivery Note", "Sales Invoice"]:
                     customer = frappe.db.get_value(
@@ -688,10 +678,6 @@ def on_submit_serial_and_batch_bundle(doc, method):
                     (doc.name),
                 ):
                     serial_no_doc.custom_sales_invoice = d[0]
-
-                tdni = frappe.get_value(
-                    "Delivery Note Item", {"serial_and_batch_bundle": doc.name}
-                )
 
                 for d in frappe.db.sql(
                     """
