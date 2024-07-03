@@ -770,7 +770,7 @@ def update_serial_no_from_serial_and_batch_bundle(start, end):
             on_submit_serial_and_batch_bundle(
                 doc=frappe.get_doc("Serial and Batch Bundle", d.name), method=None
             )
-        elif d.docstatus == 1:
+        elif d.docstatus == 2:
             on_cancel_serial_and_batch_bundle(
                 doc=frappe.get_doc("Serial and Batch Bundle", d.name), method=None
             )
@@ -779,12 +779,15 @@ def update_serial_no_from_serial_and_batch_bundle(start, end):
 @frappe.whitelist()
 def update_serial_no_from_sales_invoice(start, end):
     # update previous records
-    for d in frappe.get_all(
-        "Sales Invoice",
-        filters={"docstatus": 1, "creation": ["between", (start, end)]},
-        order_by="creation",
-    ):
-        print(d.name)
-        on_submit_sales_invoice(
-            doc=frappe.get_doc("Sales Invoice", d.name), method=None
-        )
+    frappe.db.sql(
+        """
+        update `tabSales Invoice Item` tsii 
+        inner join `tabSales Invoice` tsi on tsi.name = tsii.parent and tsi.docstatus = 1
+        inner join `tabSerial and Batch Bundle` tsabb on tsabb.voucher_no = tsii.delivery_note 
+            and tsabb.voucher_type = 'Delivery Note'
+        inner join `tabSerial and Batch Entry` tsabe on tsabe.parent = tsabb.name 
+        inner join `tabSerial No` tsn on tsn.name = tsabe.serial_no 
+        set tsn.custom_sales_invoice = tsi.name
+        where delivery_note is not null
+                  """
+    )
