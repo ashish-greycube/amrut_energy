@@ -830,6 +830,7 @@ def update_serial_no_from_pr(start, end):
             ),
             d,
         )
+        frappe.db.commit()
 
 
 @frappe.whitelist()
@@ -867,3 +868,34 @@ def update_serial_no_from_dn(start, end):
             ),
             d,
         )
+        frappe.db.commit()
+
+
+def update_serial_no_sales_invoice(start, end):
+    for d in frappe.db.sql(
+        """
+        select 
+            tsii.parent , tdni.serial_no 
+        from `tabSales Invoice Item` tsii 
+        inner join `tabSales Invoice` tsi on tsi.name = tsii.parent
+            and tsi.docstatus = 1
+        inner join `tabDelivery Note Item` tdni on tdni.name = tsii.dn_detail 
+            and nullif(tdni.serial_no,'') is not NULL 
+        where tsii.delivery_note is not null
+                           """,
+        as_dict=True,
+    ):
+        serial_nos_in = ",".join(["'{}'".format(x) for x in d.serial_no.split("\n")])
+        print(d.parent)
+        frappe.db.sql(
+            """
+        update `tabSerial No`
+        set 
+            custom_sales_invoice = %(parent)s
+        where name in ({})
+                      """.format(
+                frappe.db.escape(serial_nos_in)
+            ),
+            d,
+        )
+        frappe.db.commit()
