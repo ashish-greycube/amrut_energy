@@ -814,7 +814,7 @@ def update_serial_no_from_pr(start, end):
         as_dict=True,
     ):
         serial_nos_in = ",".join(["'{}'".format(x) for x in d.serial_no.split("\n")])
-        # print(d.name)
+        print(d.name)
         frappe.db.sql(
             """
         update `tabSerial No`
@@ -826,7 +826,7 @@ def update_serial_no_from_pr(start, end):
         custom_supplier= %(supplier)s
         where name in ({})
                       """.format(
-                serial_nos_in
+                frappe.db.escape(serial_nos_in)
             ),
             d,
         )
@@ -863,7 +863,7 @@ def update_serial_no_from_dn(start, end):
             custom_territory = %(territory)s
         where name in ({})
                       """.format(
-                serial_nos_in
+                frappe.db.escape(serial_nos_in)
             ),
             d,
         )
