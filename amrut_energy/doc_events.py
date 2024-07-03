@@ -637,16 +637,19 @@ def on_submit_serial_and_batch_bundle(doc, method):
 
             if doc.type_of_transaction == "Inward":
                 serial_no_doc.custom_creation_document_type = doc.voucher_type
-                serial_no_doc.custom_creation_document_no = doc.voucher_no
-                serial_no_doc.custom_creation_date = doc.posting_date
-                serial_no_doc.custom_creation_time = doc.posting_time
-
-                if doc.voucher_type in ["Purchase Receipt", "Purchase Invoice"]:
-                    supplier = frappe.db.get_value(
-                        doc.voucher_type, doc.voucher_no, "supplier"
-                    )
-                    if supplier:
-                        serial_no_doc.custom_supplier = supplier
+                if not serial_no_doc.custom_creation_document_type:
+                    serial_no_doc.custom_creation_document_no = doc.voucher_no
+                if not serial_no_doc.custom_creation_document_no:
+                    serial_no_doc.custom_creation_date = doc.posting_date
+                if not serial_no_doc.custom_creation_date:
+                    serial_no_doc.custom_creation_time = doc.posting_time
+                if not serial_no_doc.custom_creation_time:
+                    if doc.voucher_type in ["Purchase Receipt", "Purchase Invoice"]:
+                        supplier = frappe.db.get_value(
+                            doc.voucher_type, doc.voucher_no, "supplier"
+                        )
+                        if supplier:
+                            serial_no_doc.custom_supplier = supplier
 
             elif doc.type_of_transaction == "Outward":
                 serial_no_doc.custom_delivery_document_type = doc.voucher_type
@@ -791,3 +794,76 @@ def update_serial_no_from_sales_invoice(start, end):
         where delivery_note is not null
                   """
     )
+
+
+@frappe.whitelist()
+def update_serial_no_from_pr(start, end):
+    for d in frappe.db.sql(
+        """
+    select 
+        tpri.serial_no, tpri.item_code , tpr.name , tpr.supplier ,
+        tpr.posting_date , tpr.posting_time
+    from `tabPurchase Receipt Item` tpri 
+	inner join `tabPurchase Receipt` tpr on tpr.name = tpri.parent
+		and tpr.docstatus = 1
+	where tpri.serial_and_batch_bundle is null 
+        and nullif(tpri.serial_no,'') is not null  
+		and tpr.creation BETWEEN %s and %s
+                           """,
+        (start, end),
+        as_dict=True,
+    ):
+        serial_nos_in = ",".join(["'{}'".format(x) for x in d.serial_no.split("\n")])
+        # print(d.name)
+        frappe.db.sql(
+            """
+        update `tabSerial No`
+        set 
+        custom_creation_document_type= 'Purchase Receipt' ,
+        custom_creation_document_no= %(name)s ,
+        custom_creation_date= %(posting_date)s ,
+        custom_creation_time= %(posting_time)s ,
+        custom_supplier= %(supplier)s
+        where name in ({})
+                      """.format(
+                serial_nos_in
+            ),
+            d,
+        )
+
+
+@frappe.whitelist()
+def update_serial_no_from_dn(start, end):
+    for d in frappe.db.sql(
+        """
+	select tdni.serial_no , tdni.item_code , tdn.name ,
+		tdn.posting_date , tdn.posting_time , tdn.customer , tc.territory 
+	from `tabDelivery Note Item` tdni 
+	inner join `tabDelivery Note` tdn on tdn.name = tdni.parent 
+		and tdn.docstatus = 1
+    inner join tabCustomer tc on tc.name = tdn.customer        
+	where tdni.serial_and_batch_bundle is null 
+        and nullif(tdni.serial_no ,'') is not null		
+    and tdn.creation BETWEEN %s and %s
+                           """,
+        (start, end),
+        as_dict=True,
+    ):
+        serial_nos_in = ",".join(["'{}'".format(x) for x in d.serial_no.split("\n")])
+        print(d.name)
+        frappe.db.sql(
+            """
+        update `tabSerial No`
+        set 
+            custom_delivery_document_type= 'Purchase Receipt' ,
+            custom_delivery_document_no= %(name)s ,
+            custom_delivery_date = %(posting_date)s ,
+            custom_delivery_time = %(posting_time)s ,
+            custom_customer = %(customer)s ,
+            custom_territory = %(territory)s
+        where name in ({})
+                      """.format(
+                serial_nos_in
+            ),
+            d,
+        )

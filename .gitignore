@@ -4,3 +4,4 @@
 *.swp
 tags
 amrut_energy/docs/current
+__pycache__
