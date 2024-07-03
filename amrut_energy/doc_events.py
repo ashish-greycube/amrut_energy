@@ -880,7 +880,8 @@ def update_serial_no_sales_invoice(start, end):
         inner join `tabSales Invoice` tsi on tsi.name = tsii.parent
             and tsi.docstatus = 1
         inner join `tabDelivery Note Item` tdni on tdni.name = tsii.dn_detail 
-            and nullif(tdni.serial_no,'') is not NULL 
+            and nullif(tdni.serial_no,'') is not null 
+            and tdni.serial_and_batch_bundle is null
         where tsii.delivery_note is not null
                            """,
         as_dict=True,
@@ -892,7 +893,7 @@ def update_serial_no_sales_invoice(start, end):
         update `tabSerial No`
         set 
             custom_sales_invoice = %(parent)s
-        where name in ({})
+        where custom_sales_invoice is null and name in ({})
                       """.format(
                 frappe.db.escape(serial_nos_in)
             ),
