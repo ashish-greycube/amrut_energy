@@ -14,7 +14,8 @@
   "dynamic_product_bundle",
   "videosdk_api_key",
   "videosdk_secret_key",
-  "videosdk_api_url"
+  "videosdk_api_url",
+  "update_serial_no_from_serial_and_batch_bundle"
  ],
  "fields": [
   {
@@ -86,12 +87,19 @@
    "label": "Pdf Print Format For Engati Quotation",
    "options": "Print Format",
    "reqd": 1
+  },
+  {
+   "bold": 1,
+   "default": "0",
+   "fieldname": "update_serial_no_from_serial_and_batch_bundle",
+   "fieldtype": "Check",
+   "label": "Update Serial No from Serial and Batch Bundle"
   }
  ],
  "index_web_pages_for_search": 1,
  "issingle": 1,
  "links": [],
- "modified": "2022-02-28 10:49:50.808034",
+ "modified": "2024-07-04 20:00:17.546342",
  "modified_by": "Administrator",
  "module": "Amrut Energy",
  "name": "Amrut Settings",
@@ -138,5 +146,6 @@
  "quick_entry": 1,
  "sort_field": "modified",
  "sort_order": "DESC",
+ "states": [],
  "track_changes": 1
 }

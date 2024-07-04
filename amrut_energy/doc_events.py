@@ -7,7 +7,7 @@ from __future__ import unicode_literals
 import frappe
 from frappe import _
 from frappe.model.mapper import get_mapped_doc
-from frappe.utils import flt, getdate, nowdate, add_days, today, get_url, cstr
+from frappe.utils import flt, getdate, nowdate, add_days, today, get_url, cstr, cint
 from erpnext import get_company_currency, get_default_company
 from frappe.utils.file_manager import MaxFileSizeReachedError
 import re
@@ -589,6 +589,13 @@ def on_submit_serial_and_batch_bundle(doc, method):
     # set serial no values from S&BB
     # doc = frappe.get_doc("Serial and Batch Bundle", frappe.form_dict["name"])
 
+    if not cint(
+        frappe.db.get_single_value(
+            "Amrut Settings", "update_serial_no_from_serial_and_batch_bundle"
+        )
+    ):
+        return
+
     def handle_return(type_of_transaction, entries):
         clear_fields = ()
         if type_of_transaction == "Outward":
@@ -712,6 +719,13 @@ def on_submit_serial_and_batch_bundle(doc, method):
 
 
 def on_cancel_serial_and_batch_bundle(doc, method):
+    if not cint(
+        frappe.db.get_single_value(
+            "Amrut Settings", "update_serial_no_from_serial_and_batch_bundle"
+        )
+    ):
+        return
+
     for d in doc.entries:
         serial_no_doc = frappe.get_doc("Serial No", d.serial_no)
         if doc.voucher_type == "Purchase Receipt":
@@ -747,6 +761,13 @@ def on_cancel_serial_and_batch_bundle(doc, method):
 
 def on_submit_sales_invoice(doc, method):
     # for scenario where DN created first , then SI created, on_submit SI doc_event to handle
+    if not cint(
+        frappe.db.get_single_value(
+            "Amrut Settings", "update_serial_no_from_serial_and_batch_bundle"
+        )
+    ):
+        return
+
     for d in doc.items:
         if d.delivery_note:
             for sabb in frappe.db.get_all(
@@ -762,7 +783,7 @@ def on_submit_sales_invoice(doc, method):
 
 @frappe.whitelist()
 def update_serial_no_from_serial_and_batch_bundle(start, end):
-    # update previous records
+    # update previous records with S&BB
     for d in frappe.get_all(
         "Serial and Batch Bundle",
         filters={"creation": ["between", (start, end)]},
@@ -782,7 +803,7 @@ def update_serial_no_from_serial_and_batch_bundle(start, end):
 
 @frappe.whitelist()
 def update_serial_no_from_sales_invoice(start, end):
-    # update previous records
+    # update previous records with S&BB
     frappe.db.sql(
         """
         update `tabSales Invoice Item` tsii 
@@ -872,7 +893,8 @@ def update_serial_no_from_dn(start, end):
         frappe.db.commit()
 
 
-def update_serial_no_sales_invoice(start, end):
+@frappe.whitelist()
+def update_serial_no_set_sales_invoice(start, end):
     for d in frappe.db.sql(
         """
         select 
