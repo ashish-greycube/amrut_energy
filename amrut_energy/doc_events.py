@@ -636,20 +636,21 @@ def on_submit_serial_and_batch_bundle(doc, method):
             serial_no_doc = frappe.get_doc("Serial No", d.serial_no)
 
             if doc.type_of_transaction == "Inward":
-                serial_no_doc.custom_creation_document_type = doc.voucher_type
                 if not serial_no_doc.custom_creation_document_type:
-                    serial_no_doc.custom_creation_document_no = doc.voucher_no
+                    serial_no_doc.custom_creation_document_type = doc.voucher_type
                 if not serial_no_doc.custom_creation_document_no:
-                    serial_no_doc.custom_creation_date = doc.posting_date
+                    serial_no_doc.custom_creation_document_no = doc.voucher_no
                 if not serial_no_doc.custom_creation_date:
-                    serial_no_doc.custom_creation_time = doc.posting_time
+                    serial_no_doc.custom_creation_date = doc.posting_date
                 if not serial_no_doc.custom_creation_time:
-                    if doc.voucher_type in ["Purchase Receipt", "Purchase Invoice"]:
-                        supplier = frappe.db.get_value(
-                            doc.voucher_type, doc.voucher_no, "supplier"
-                        )
-                        if supplier:
-                            serial_no_doc.custom_supplier = supplier
+                    serial_no_doc.custom_creation_time = doc.posting_time
+
+                if doc.voucher_type in ["Purchase Receipt", "Purchase Invoice"]:
+                    supplier = frappe.db.get_value(
+                        doc.voucher_type, doc.voucher_no, "supplier"
+                    )
+                    if supplier:
+                        serial_no_doc.custom_supplier = supplier
 
             elif doc.type_of_transaction == "Outward":
                 serial_no_doc.custom_delivery_document_type = doc.voucher_type
