@@ -834,23 +834,25 @@ def update_serial_no_from_pr(start, end):
                            """,
         (start, end),
         as_dict=True,
+        debug=True,
     ):
-        serial_nos_in = ",".join(["'{}'".format(x) for x in d.serial_no.split("\n")])
         print(d.name)
+        args = d.serial_no.split("\n")
+
         frappe.db.sql(
             """
         update `tabSerial No`
         set 
         custom_creation_document_type= 'Purchase Receipt' ,
-        custom_creation_document_no= %(name)s ,
-        custom_creation_date= %(posting_date)s ,
-        custom_creation_time= %(posting_time)s ,
-        custom_supplier= %(supplier)s
+        custom_creation_document_no= %s ,
+        custom_creation_date= %s ,
+        custom_creation_time= %s ,
+        custom_supplier= %s
         where name in ({})
                       """.format(
-                frappe.db.escape(serial_nos_in)
+                ",".join(["%s"] * len(args))
             ),
-            d,
+            tuple([d.name, d.posting_date, d.posting_time, d.supplier] + args),
         )
         frappe.db.commit()
 
@@ -872,24 +874,29 @@ def update_serial_no_from_dn(start, end):
         (start, end),
         as_dict=True,
     ):
-        serial_nos_in = ",".join(["'{}'".format(x) for x in d.serial_no.split("\n")])
         print(d.name)
+        args = d.serial_no.split("\n")
+
+        print(args)
+
         frappe.db.sql(
             """
         update `tabSerial No`
         set 
-            custom_delivery_document_type= 'Purchase Receipt' ,
-            custom_delivery_document_no= %(name)s ,
-            custom_delivery_date = %(posting_date)s ,
-            custom_delivery_time = %(posting_time)s ,
-            custom_customer = %(customer)s ,
-            custom_territory = %(territory)s
+            custom_delivery_document_type= 'Delivery Note' ,
+            custom_delivery_document_no= %s ,
+            custom_delivery_date = %s ,
+            custom_delivery_time = %s ,
+            custom_customer = %s ,
+            custom_territory = %s
         where name in ({})
-                      """.format(
-                frappe.db.escape(serial_nos_in)
+                     """.format(
+                ",".join(["%s"] * len(args))
             ),
-            d,
-        )
+            tuple(
+                [d.name, d.posting_date, d.posting_time, d.customer, d.territory] + args
+            ),
+        ),
         frappe.db.commit()
 
 
@@ -909,17 +916,17 @@ def update_serial_no_set_sales_invoice(start, end):
                            """,
         as_dict=True,
     ):
-        serial_nos_in = ",".join(["'{}'".format(x) for x in d.serial_no.split("\n")])
+        args = d.serial_no.split("\n")
         print(d.parent)
         frappe.db.sql(
             """
         update `tabSerial No`
         set 
-            custom_sales_invoice = %(parent)s
-        where custom_sales_invoice is null and name in ({})
+            custom_sales_invoice = %s
+        where nullif(custom_sales_invoice,'') is null and name in ({})
                       """.format(
-                frappe.db.escape(serial_nos_in)
+                ",".join(["%s"] * len(args))
             ),
-            d,
+            tuple([d.parent] + args),
         )
-        frappe.db.commit()
+    frappe.db.commit()
