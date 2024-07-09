@@ -586,6 +586,16 @@ def on_submit_payment_entry_create_inter_company_je(docname, receiving_company_c
 
 
 def on_submit_serial_and_batch_bundle(doc, method):
+    try:
+        _on_submit_serial_and_batch_bundle(doc, method)
+    except Exception as e:
+        frappe.log_error(
+            title="on_submit_serial_and_batch_bundle: Serial No Customization",
+            message=frappe.get_traceback(),
+        )
+
+
+def _on_submit_serial_and_batch_bundle(doc, method):
     # set serial no values from S&BB
     # doc = frappe.get_doc("Serial and Batch Bundle", frappe.form_dict["name"])
 
@@ -715,8 +725,6 @@ def on_submit_serial_and_batch_bundle(doc, method):
 
             serial_no_doc.save()
 
-    frappe.db.commit()
-
 
 def on_cancel_serial_and_batch_bundle(doc, method):
     if not cint(
@@ -725,38 +733,43 @@ def on_cancel_serial_and_batch_bundle(doc, method):
         )
     ):
         return
+    try:
+        for d in doc.entries:
+            serial_no_doc = frappe.get_doc("Serial No", d.serial_no)
+            if doc.voucher_type == "Purchase Receipt":
+                for field in [
+                    "custom_creation_document_type",
+                    "custom_creation_document_no",
+                    "custom_creation_date",
+                    "custom_creation_time",
+                    "custom_supplier",
+                ]:
+                    serial_no_doc.set(field, None)
+            elif doc.voucher_type == "Delivery Note":
+                for field in [
+                    "custom_delivery_document_type",
+                    "custom_delivery_document_no",
+                    "custom_delivery_date",
+                    "custom_delivery_time",
+                    "custom_customer",
+                    "custom_territory",
+                    "warranty_period",
+                    "custom_warranty_period_days",
+                    "warranty_expiry_date",
+                    "maintenance_status",
+                ]:
+                    serial_no_doc.set(field, None)
 
-    for d in doc.entries:
-        serial_no_doc = frappe.get_doc("Serial No", d.serial_no)
-        if doc.voucher_type == "Purchase Receipt":
-            for field in [
-                "custom_creation_document_type",
-                "custom_creation_document_no",
-                "custom_creation_date",
-                "custom_creation_time",
-                "custom_supplier",
-            ]:
-                serial_no_doc.set(field, None)
-        elif doc.voucher_type == "Delivery Note":
-            for field in [
-                "custom_delivery_document_type",
-                "custom_delivery_document_no",
-                "custom_delivery_date",
-                "custom_delivery_time",
-                "custom_customer",
-                "custom_territory",
-                "warranty_period",
-                "custom_warranty_period_days",
-                "warranty_expiry_date",
-                "maintenance_status",
-            ]:
-                serial_no_doc.set(field, None)
+            if doc.voucher_type in ["Purchase Receipt", "Purchase Invoice"]:
+                if serial_no_doc.custom_supplier:
+                    serial_no_doc.set("custom_supplier", None)
 
-        if doc.voucher_type in ["Purchase Receipt", "Purchase Invoice"]:
-            if serial_no_doc.custom_supplier:
-                serial_no_doc.set("custom_supplier", None)
-
-        serial_no_doc.save()
+            serial_no_doc.save()
+    except Exception as e:
+        frappe.log_error(
+            title="on_cancel_serial_and_batch_bundle: Serial No Customization",
+            message=frappe.get_traceback(),
+        )
 
 
 def on_submit_sales_invoice(doc, method):
@@ -768,17 +781,24 @@ def on_submit_sales_invoice(doc, method):
     ):
         return
 
-    for d in doc.items:
-        if d.delivery_note:
-            for sabb in frappe.db.get_all(
-                "Serial and Batch Bundle",
-                {"voucher_type": "Delivery Note", "voucher_no": d.delivery_note},
-            ):
-                sabb_doc = frappe.get_doc("Serial and Batch Bundle", sabb.name)
-                for ent in sabb_doc.entries:
-                    frappe.db.set_value(
-                        "Serial No", ent.serial_no, "custom_sales_invoice", doc.name
-                    )
+    try:
+
+        for d in doc.items:
+            if d.delivery_note:
+                for sabb in frappe.db.get_all(
+                    "Serial and Batch Bundle",
+                    {"voucher_type": "Delivery Note", "voucher_no": d.delivery_note},
+                ):
+                    sabb_doc = frappe.get_doc("Serial and Batch Bundle", sabb.name)
+                    for ent in sabb_doc.entries:
+                        frappe.db.set_value(
+                            "Serial No", ent.serial_no, "custom_sales_invoice", doc.name
+                        )
+    except Exception as e:
+        frappe.log_error(
+            title="on_submit_sales_invoice: Serial No Customization",
+            message=frappe.get_traceback(),
+        )
 
 
 @frappe.whitelist()
