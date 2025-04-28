@@ -26,7 +26,7 @@ def on_validate_contact(doc, method):
 
 
 def on_validate_payment_entry(doc, method):
-    contact_phone = doc.contact_phone
+    contact_phone = doc.contact_phone or doc.contact_mobile
     if not contact_phone:
         if doc.references:
             ref = doc.references[-1]
