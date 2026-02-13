@@ -161,3 +161,8 @@ doc_events = {
 # override_doctype_dashboards = {
 # 	"Task": "amrut_energy.task.get_dashboard_data"
 # }
+fixtures = [
+       {
+         "dt": "Property Setter", 
+         "filters":[["name", "in", ['Lead-status-options']]]
+      }]
