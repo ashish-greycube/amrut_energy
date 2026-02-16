@@ -999,11 +999,15 @@ def on_validate_lead(doc, method):
                             <p>You must select from <b>{list}</b>.</p>
                         """)
 
-    if doc.stage_cf in ["New", "Qualified", "Pending", "Irrelevent", "Converted/Customer"]:
+    if doc.stage_cf == "New":
         validate_status("New", ["Lead", "Open", "Replied"])
+    elif doc.stage_cf == "Qualified":
         validate_status("Qualified", ["Cold", "Contacted", "Warm", "Hot", "Quotation", "Opportunity"])
+    elif doc.stage_cf == "Pending":
         validate_status("Pending", ["Not Applicable"])
-        validate_status("Irrelevent", ["Not Applicable"])
+    elif doc.stage_cf == "Irrelevant":
+        validate_status("Irrelevant", ["Not Applicable"])
+    elif doc.stage_cf == "Converted/Customer":
         validate_status("Converted/Customer", ["Not Applicable"])
     else:
         frappe.throw(f"""

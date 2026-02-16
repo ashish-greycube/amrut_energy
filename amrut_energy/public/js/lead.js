@@ -17,14 +17,16 @@ frappe.ui.form.on("Lead", {
         frm.set_query("custom_district", (frm) => {
             return {
                 "filters": {
-                    "custom_territory_type": "District"
+                    "custom_territory_type": "District",
+                    "parent_territory": `${frm.custom_location_state}`
                 }
             }
         })
         frm.set_query("custom_block", (frm) => {
             return {
                 "filters": {
-                    "custom_territory_type": "Block"
+                    "custom_territory_type": "Block",
+                    "parent_territory": `${frm.custom_district}`,
                 }
             }
         })
@@ -61,6 +63,18 @@ const set_territory_type = (frm) => {
 
             let list = r.message
 
+            if (list["state"]) {
+                frappe.show_alert({
+                    message: __('Values set succesfully!'),
+                    indicator: 'green'
+                }, 3);
+            }
+
+            // frappe.show_alert({
+            //     message: __('Values set succesfully!'),
+            //     indicator: 'green'
+            // }, 3);
+
             state = list["custom_location_state"]
             dist = list["custom_district"]
             block = list["custom_block"]
@@ -70,12 +84,6 @@ const set_territory_type = (frm) => {
                 "custom_district": dist,
                 "custom_block": block
             })
-
-            frappe.show_alert({
-                message: __('Values set succesfully!'),
-                indicator: 'green'
-            }, 3);
-
             // console.log(r.exc)
         }
     });
