@@ -3,6 +3,7 @@
 # For license information, please see license.txt
 
 from __future__ import unicode_literals
+import json
 
 import frappe
 from frappe import _
@@ -950,3 +951,62 @@ def update_serial_no_set_sales_invoice(start, end):
             tuple([d.parent] + args),
         )
     frappe.db.commit()
+
+@frappe.whitelist()
+def populate_location_lead(doc):
+    # Initialise and get all required things
+    doc = json.loads(doc)
+    sel_loc = doc.get("territory")
+    location_list = {}
+
+    if sel_loc:
+        # get territory doc of selected location
+        terr_doc = frappe.get_doc("Territory", sel_loc)
+        terr_type = terr_doc.get("custom_territory_type")
+
+        if terr_type == "District":
+            location_list["custom_location_state"] = terr_doc.get("parent_territory")
+            location_list["custom_district"] = sel_loc
+            location_list["custom_block"] = ""
+
+            return (location_list)
+        elif terr_type == "State":
+            location_list["custom_location_state"] = sel_loc
+            location_list["custom_district"] = ""
+            location_list["custom_block"] = ""
+
+            return (location_list)
+        elif terr_type == "Block":
+            #getting dist and state
+            dist = terr_doc.get("parent_territory")
+            state_doc = frappe.get_doc("Territory", dist)
+            state = state_doc.get("parent_territory")
+
+            # setting all in list
+            location_list["custom_block"] = sel_loc
+            location_list["custom_district"] = dist
+            location_list["custom_location_state"] = state
+
+            return (location_list)
+    return {}
+
+def on_validate_lead(doc, method):
+
+    def validate_status(stage, list):
+        if not doc.status in list:
+            frappe.throw(f"""
+                            <p>The stage <b>{doc.stage_cf}</b> isn't compatible with status {doc.status}.</p>
+                            <p>You must select from <b>{list}</b>.</p>
+                        """)
+
+    if doc.stage_cf in ["New", "Qualified", "Pending", "Irrelevent", "Converted/Customer"]:
+        validate_status("New", ["Lead", "Open", "Replied"])
+        validate_status("Qualified", ["Cold", "Contacted", "Warm", "Hot", "Quotation", "Opportunity"])
+        validate_status("Pending", ["Not Applicable"])
+        validate_status("Irrelevent", ["Not Applicable"])
+        validate_status("Converted/Customer", ["Not Applicable"])
+    else:
+        frappe.throw(f"""
+                        <p>You have selected Invalid Stage.</p>
+                        <p>Select valid Stage from <b>["New", "Qualified", "Pending", "Irrelevent", "Converted/Customer"]</b>.</p>
+                    """)
