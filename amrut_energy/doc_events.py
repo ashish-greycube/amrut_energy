@@ -992,6 +992,7 @@ def populate_location_lead(doc):
 
 def on_validate_lead(doc, method):
 
+    # for validating lead status and lead stage
     def validate_status(stage, list):
         if not doc.status in list:
             frappe.throw(f"""
@@ -1014,3 +1015,9 @@ def on_validate_lead(doc, method):
                         <p>You have selected Invalid Stage.</p>
                         <p>Select valid Stage from <b>["New", "Qualified", "Pending", "Irrelevent", "Converted/Customer"]</b>.</p>
                     """)
+    
+    # Adding validation on lead type
+    lead_type_list = ["Personal Use", "Knowledge Seeker", "Consultant", "Competitor", "Government Employee", "New Business"]
+
+    if doc.purpose in lead_type_list:
+        frappe.throw("<p>Lead Type can't be <b>{0}</b>.</p>".format(doc.purpose))
