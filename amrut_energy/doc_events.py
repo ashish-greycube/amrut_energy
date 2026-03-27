@@ -1009,7 +1009,7 @@ def on_validate_lead(doc, method):
     elif doc.stage_cf == "Irrelevant":
         validate_status("Irrelevant", ["Not Applicable"])
     elif doc.stage_cf == "Converted/Customer":
-        validate_status("Converted/Customer", ["Not Applicable"])
+        validate_status("Converted/Customer", ["Converted"])
     else:
         frappe.throw(f"""
                         <p>You have selected Invalid Stage.</p>
