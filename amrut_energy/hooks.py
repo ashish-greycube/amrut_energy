@@ -121,7 +121,8 @@ doc_events = {
         "on_cancel": "amrut_energy.doc_events.on_cancel_serial_and_batch_bundle",
     },
     "Sales Invoice": {"on_submit": "amrut_energy.doc_events.on_submit_sales_invoice"},
-    "Lead" : {"validate" : "amrut_energy.doc_events.on_validate_lead"}
+    "Lead" : {"validate" : "amrut_energy.doc_events.on_validate_lead"},
+    "Territory": {"validate" : "amrut_energy.doc_events.on_validate_territory_give_user_permissions"}
 }
 
 # Scheduled Tasks
