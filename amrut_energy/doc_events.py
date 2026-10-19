@@ -143,7 +143,7 @@ def on_validate_quotation_for_engati_chat_bot(self, method):
 	):
 		self.quotation_to = "Lead"
 		party_name = frappe.db.get_list(
-			"Lead", filters={"mobile_no": self.lead_mobile_no}, pluck="name"
+			"Lead", filters={"mobile_no": self.lead_mobile_no}, pluck="name", order_by="modified desc"
 		)
 		if len(party_name) > 0:
 			self.party_name = party_name[0]
@@ -369,6 +369,7 @@ def on_submit_payment_entry_create_inter_company_je(docname, receiving_company_c
 				"company": receiving_company_cf,
 			},
 			fields=["name"],
+			order_by="modified desc"
 		)
 		# if len(receiving_bank_account_list)<1:
 		#     msg = _('There is no inter company mapping. Please set at {0}'
@@ -413,6 +414,7 @@ def on_submit_payment_entry_create_inter_company_je(docname, receiving_company_c
 				"is_internal_supplier": 1,
 			},
 			fields=["name"],
+			order_by="modified desc"
 		)
 		if len(credit_supplier_list) < 1:
 			msg = _(
@@ -459,6 +461,7 @@ def on_submit_payment_entry_create_inter_company_je(docname, receiving_company_c
 			"Customer",
 			filters={"represents_company": self.company, "is_internal_customer": 1},
 			fields=["name"],
+			order_by="modified desc"
 		)
 		if len(debit_customer_list) < 1:
 			msg = _(
